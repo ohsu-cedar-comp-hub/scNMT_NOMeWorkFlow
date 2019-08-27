@@ -1,0 +1,29 @@
+{
+    "__default__" :
+    {
+        "t" : "35:00:00",
+        "N" : 1,
+        "partition" : "exacloud",
+        "J" : "{rule}.{wildcards}",
+        "o" : "logs/{rule}/{wildcards}_{rule}%j.out",
+        "e" : "logs/{rule}/{wildcards}_{rule}%j.err",
+        "c" : 4,
+        "mem" : 45000
+    },
+     "trimming" :
+    {
+        "J" : "mapReads_single_cases",
+        "o" : "logs/mapReads/mapReads_single_cases%j.out",
+        "e" : "logs/mapReads/mapReads_single_cases%j.err",
+        "c" : 12,
+        "mem" : 64000
+    },
+     "mapping" :
+    {
+        "J" : "mapReads_single_controls",
+        "o" : "logs/mapReads/mapReads_single_controls%j.out",
+        "e" : "logs/mapReads/mapReads_single_controls%j.err",
+        "c" : 12,
+        "mem" : 64000
+    }    
+}

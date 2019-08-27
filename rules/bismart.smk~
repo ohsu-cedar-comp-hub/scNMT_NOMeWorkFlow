@@ -1,0 +1,51 @@
+rule trimming:
+    input:
+        fwd = "samples/raw/{sample}_R1.fastq",
+        rev = "samples/raw/{sample}_R2.fastq"
+    output:
+        "samples/trim/{sample}.fastq_trimming_report.txt",
+        "samples/trim/{sample}_R1_val_1_fastqc.html",
+        "samples/trim/{sample}_R1_val_1_fastqc.zip",
+        "samples/trim/{sample}_R1_val_1.fq",
+        "samples/trim/{sample}_R2.fastq_trimming_report.txt",
+        "samples/trim/{sample}_R2_val_2_fastqc.html",
+        "samples/trim/{sample}_R2_val_2_fastqc.zip",
+        "samples/trim/{sample}_R2_val_2.fq"
+    conda:
+        "../envs/align.yaml"
+    shell:
+        """trim_galore --paired --clip_R1 6 --clip_R2 6 --trim1 --dont_gzip --fastqc --output_dir samples/trim {input.fwd} {input.rev}"""
+
+rule mapping
+    input:
+        fwd = "samples/trim/{sample}_R1_val_2.fq",
+        rev = "samples/trim/{sample}_R2_val_2.fq",
+	name = {sample}
+    output:
+        "samples/{sample}/{sample}_R1_t.fastq",
+        "samples/bbduk/{sample}/{sample}_R2_t.fastq",
+	""
+    params:	
+        bismark_index = config["bismark_index"]
+    conda:
+        "../envs/align.yaml"
+    shell:
+        """bismark --basename {input.sample} --output_dir samples/bismark -X 1000 --non_directional --bowtie1 --gzip -n 1 --output_dir results/bismark/ {params.bismark_index} -1 {input.fwd} -2 {input.rev}"""
+        """bismark --basename {input.sample} --output_dir samples/bismark -X 1000 --non_directional --bowtie1 --gzip -n 1 --output_dir results/bismark/ {params.bismark_index} -1 {input.fwd} -2 {input.rev}"""
+
+deduplcate bam
+    input:
+        fwd = "samples/trim/",
+        rev = "samples/trim/",
+	name = {sample}
+    output:
+        "samples/{sample}/{sample}_R1_t.fastq",
+        "samples/bbduk/{sample}/{sample}_R2_t.fastq",
+	""
+    params:	
+        bismark_index = config["bismark_index"]
+    conda:
+        "../envs/align.yaml"
+    shell:
+        """deduplicate_bismark --single --output_dir bismarkSE/dedup --bam bismarkSE/{Name}_R${x}.bam"""
+

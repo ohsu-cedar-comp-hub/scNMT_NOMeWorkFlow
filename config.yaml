@@ -1,0 +1,10 @@
+bismark_index:
+  /home/groups/CEDAR/anno/indices/bismark/bowtie1/hg19/
+project_id:
+  NMT-seq-20190308
+samples:
+  /home/groups/CEDAR/woodfin/projects/ChIP-seq-pipeline/data/ChIP_metadata.txt
+trim_dir:
+  samples/trim
+map_dir:
+  bismarkSE
