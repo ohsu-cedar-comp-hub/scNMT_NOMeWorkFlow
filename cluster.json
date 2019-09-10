@@ -37,33 +37,49 @@
     "deduplcate_bam_R1" :
     {
         "J" : "deduplicate_R1",
-        "o" : "logs/dedup/deduplicate_R1%j.out",
-        "e" : "logs/dedup/deduplicate_R1%j.err",
+        "o" : "logs/deduplcate_bam_R1/deduplicate_R1%j.out",
+        "e" : "logs/deduplcate_bam_R1/deduplicate_R1%j.err",
         "c" : 1,
         "mem" : 16000
     },
     "deduplcate_bam_R2" :
     {
         "J" : "deduplicate_R2",
-        "o" : "logs/dedup/deduplicate_R2%j.out",
-        "e" : "logs/dedup/deduplicate_R2%j.err",
+        "o" : "logs/deduplcate_bam_R2/deduplicate_R2%j.out",
+        "e" : "logs/deduplcate_bam_R2/deduplicate_R2%j.err",
         "c" : 1,
         "mem" : 16000
     },
     "methylation_extractor" :
     {
         "J" : "methylation_extract",
-        "o" : "logs/methyl_extract/methylation_extract%j.out",
-        "e" : "logs/methyl_extract/methylation_extract%j.err",
+        "o" : "logs/methylation_extractor/methylation_extract%j.out",
+        "e" : "logs/methylation_extractor/methylation_extract%j.err",
         "c" : 4,
         "mem" : 64000
     },
     "coverage2cytosine" :
     {
         "J" : "c2c",
-        "o" : "logs/c2c/c2c%j.out",
-        "e" : "logs/c2c/c2c%j.err",
+        "o" : "logs/coverage2cytosine/c2c%j.out",
+        "e" : "logs/coverage2cytosine/c2c%j.err",
         "c" : 4,
         "mem" : 64000
-    }   
+    },
+    "c2c_cov_filter" :
+    {
+	"J" : "c2c_filter",
+	"o" : "logs/c2c_cov_filter/c2c_filter%j.out",
+	"e" : "logs/c2c_cov_filter/c2c_filter%j.err",
+	"c" : 6,
+	"mem" : 64000
+    },
+    "binarize" :
+    {
+	"J" : "binarize",
+	"o" : "logs/binarize/binarize%j.out",
+	"e" : "logs/binarize/binarize%j.err",
+	"c" : 6,
+	"mem" : 64000
+    }
 }

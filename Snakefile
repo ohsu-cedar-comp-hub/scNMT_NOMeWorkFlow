@@ -20,12 +20,11 @@ project_id = config["project_id"]
 
 SAMPLES, = glob_wildcards("samples/raw/{sample}_R1.fastq.gz")
 
-#fastq_ext = ['1','2']
 bismark_ext = ['pe.bam', 'PE_report.txt']
 CX_ext1 = ['CHG','CHH','CpG']
 CX_ext2 = ['CTOT','OT','CTOB','OB']
 CX_report = ['.bismark.cov.gz','_splitting_report.txt','.bedGraph.gz','.M-bias.txt']
-c2c = ['CpG.cov.gz','CpG_report.txt.gz','GpC.cov.gz','GpC_report.txt.gz']
+c2c = ['CpG_report.txt.gz','GpC_report.txt.gz']
 
 ## generates log dirs from json file
 with open('cluster.json') as json_file:
@@ -52,22 +51,6 @@ for rule in result_dirs:
 def message(mes):
     sys.stderr.write("|--- " + mes + "\n")
 
-## used for omic rules for python that writes an rscript wont need
-#def format_plot_columns():
-#    factors = config['meta_columns_to_plot'].keys()
-#    reformat_factors = '"' + '","'.join(factors) + '"'
-#    return 'c({})'.format(reformat_factors)
-
-## dont need unless using DEseq
-#def get_deseq2_threads(wildcards=None):
-#    few_coeffs = False if wildcards is None else len(get_contrast(wildcards)) < 10
-#    return 1 if len(config["omic_meta_data"]) < 100 or few_coeffs else 6
-
-## used to define contrasts
-#def get_contrast(wildcards):
-#    """Return each contrast provided in the configuration file"""
-#    return config["diffexp"]["contrasts"][wildcards.contrast]
-
 ## just print statement
 for sample in SAMPLES:
     message("Sample " + sample + " will be processed")
@@ -91,9 +74,13 @@ rule all:
 	expand("bismarkSE/dedup/{sample}_merged.bam", sample = SAMPLES),
 	expand("bismarkSE/{sample}_R1_SE_report.txt", sample = SAMPLES),
 	expand("bismarkSE/{sample}_R2_SE_report.txt", sample = SAMPLES),
+	expand("bismarkSE/dedup/{sample}_R1.deduplication_report.txt", sample = SAMPLES),
+	expand("bismarkSE/dedup/{sample}_R2.deduplication_report.txt", sample = SAMPLES),
 	expand("bismarkSE/CX/{CX_ext1}_{CX_ext2}_{sample}_merged.txt.gz", sample = SAMPLES, CX_ext1 = CX_ext1, CX_ext2 = CX_ext2),
 	expand("bismarkSE/CX/{sample}_merged{CX_report}", sample = SAMPLES, CX_report = CX_report),
-	expand("bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.{c2c}", sample = SAMPLES, c2c = c2c)
+	expand("bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.{c2c}", sample = SAMPLES, c2c = c2c),
+	expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz", sample = SAMPLES),
+	expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_GpC.gz", sample = SAMPLES)
 	
 
 ## must include all rules

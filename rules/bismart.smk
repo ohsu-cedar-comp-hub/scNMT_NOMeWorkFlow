@@ -47,6 +47,7 @@ rule deduplcate_bam_R1:
         fwd = "bismarkSE/{sample}_R1.bam",
     output:
         "bismarkSE/dedup/{sample}_R1.deduplicated.bam",
+	"bismarkSE/dedup/{sample}_R1.deduplication_report.txt"
     conda:
         "../envs/methylome.yaml"
     shell:
@@ -56,7 +57,8 @@ rule deduplcate_bam_R2:
     input:
         rev = "bismarkSE/{sample}_R2.bam",
     output:
-        "bismarkSE/dedup/{sample}_R2.deduplicated.bam"
+        "bismarkSE/dedup/{sample}_R2.deduplicated.bam",
+	"bismarkSE/dedup/{sample}_R2.deduplication_report.txt"
     conda:
         "../envs/methylome.yaml"
     shell:
@@ -106,3 +108,29 @@ rule coverage2cytosine:
         "../envs/methylome.yaml"
     shell:
         """coverage2cytosine --nome-seq --gzip --output {wildcards.sample}_merged --dir bismarkSE/CX/coverage2cytosine_1based --genome_folder {params.bismark_index} {input.cov}"""
+
+rule c2c_cov_filter:
+     input:
+        "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.CpG.cov.gz",
+	"bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.GpC.cov.gz"
+     output:
+        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_CpG.tsv.gz",
+        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_GpC.tsv.gz"
+     shell:
+        """
+	zmore {input[0]} | awk  -vOFS='\\t' '{{ if ($5>0 || $6>0)  {{print $1,$2,$5,$6}}}}' | sort -k 1,1 -k2,2n -S 1G --parallel 6 | gzip > bismarkSE/CX/coverage2cytosine_1based/filt/{wildcards.sample}_CpG.tsv.gz
+	zmore {input[1]} | awk  -vOFS='\\t' '{{ if ($5>0 || $6>0)  {{print $1,$2,$5,$6}}}}' | sort -k 1,1 -k2,2n -S 1G --parallel 6 | gzip > bismarkSE/CX/coverage2cytosine_1based/filt/{wildcards.sample}_GpC.tsv.gz
+        """
+
+rule binarize:
+     input:
+        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_CpG.tsv.gz",
+        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_GpC.tsv.gz"
+     output:
+        "bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz",
+        "bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_GpC.gz"
+     shell:
+        """
+	Rscript scripts/binarize.R --infile={input[0]} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
+	Rscript scripts/binarize.R --infile={input[1]} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
+        """
