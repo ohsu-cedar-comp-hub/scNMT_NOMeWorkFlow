@@ -1,15 +1,35 @@
-library(data.table)
-library(purrr)
-library(tidyr)
-library(ggplot2)
-library(cowplot)
+args <- commandArgs()
 
-setwd("/home/groups/CEDAR/woodfin/projects/NMT-seq/20190627_NM_rename/")
-
-Dir <- "plots/QC/filtered"
-if(!(file.exists(Dir))) {
-    dir.create(Dir,FALSE,TRUE)  
+help <- function(){
+    cat("met_acc_QC.R :
+- QC for the methylation and accessibility
+- output is #FIXME")
+    cat("Usage: /n")
+    cat("--outdir    : Path to ouput dir                    [ required ]\n")
+    cat("\n")
+    q()
 }
+
+## Save values of each argument
+if(!is.na(charmatch("--help",args)) || !is.na(charmatch("-h",args)) ){
+    help()
+} else{
+    outdir   <- sub('--outdir=', '', args[grep('--outdir=', args)] )
+}
+
+suppressMessages(library(data.table))
+suppressMessages(library(purrr))
+suppressMessages(library(tidyr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(cowplot))
+suppressMessages(library(argparse))
+
+if(!(file.exists( outdir ))) {
+    dir.create(outdir,FALSE,TRUE)  
+}
+
+Dir <- outdir
+statsfile <- "tables/sample_stats.txt"
 
 barplot_theme <- function() {
   p <- theme(
@@ -43,11 +63,11 @@ io$sample.metadata_updated <- "tables/sample_read_report_qcPASS.txt"
 io$in.accdir               <- "bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
 io$stats                   <- "tables/sample_stats.txt"
 io$stats_updated           <- "tables/sample_stats_qcPass.txt"
-io$outdir                  <- Dir
+io$outdir                  <- outdir
 print(io)
 
 # load stats and merge with read report
-stats <- fread("tables/sample_stats.txt",sep="\t", verbose=F, showProgress=F)
+stats <- fread(statsfile,sep="\t", verbose=F, showProgress=F)
 head(stats)
 dim(stats)
 

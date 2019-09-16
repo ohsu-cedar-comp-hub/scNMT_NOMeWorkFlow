@@ -23,7 +23,7 @@ SAMPLES, = glob_wildcards("samples/raw/{sample}_R1.fastq.gz")
 bismark_ext = ['pe.bam', 'PE_report.txt']
 CX_ext1 = ['CHG','CHH','CpG']
 CX_ext2 = ['CTOT','OT','CTOB','OB']
-CX_report = ['.bismark.cov.gz','_splitting_report.txt','.bedGraph.gz','.M-bias.txt']
+CX_report = ['_splitting_report.txt','.bedGraph.gz','.M-bias.txt']
 c2c = ['CpG_report.txt.gz','GpC_report.txt.gz']
 
 ## generates log dirs from json file
@@ -65,25 +65,40 @@ rule all:
         expand("samples/trim/{sample}_R1_val_1_fastqc.zip", sample = SAMPLES),
 	expand("samples/trim/{sample}_R2_val_2_fastqc.html", sample = SAMPLES),
         expand("samples/trim/{sample}_R2_val_2_fastqc.zip", sample = SAMPLES),
-        expand("samples/trim/{sample}_R1_val_1.fq.gz", sample = SAMPLES),
-	expand("samples/trim/{sample}_R2_val_2.fq.gz", sample = SAMPLES),
-	expand("bismarkSE/{sample}_R1.bam", sample = SAMPLES),
-	expand("bismarkSE/{sample}_R2.bam", sample = SAMPLES),
-	expand("bismarkSE/dedup/{sample}_R1.deduplicated.bam", sample = SAMPLES),
-	expand("bismarkSE/dedup/{sample}_R2.deduplicated.bam", sample = SAMPLES),
-	expand("bismarkSE/dedup/{sample}_merged.bam", sample = SAMPLES),
 	expand("bismarkSE/{sample}_R1_SE_report.txt", sample = SAMPLES),
 	expand("bismarkSE/{sample}_R2_SE_report.txt", sample = SAMPLES),
 	expand("bismarkSE/dedup/{sample}_R1.deduplication_report.txt", sample = SAMPLES),
 	expand("bismarkSE/dedup/{sample}_R2.deduplication_report.txt", sample = SAMPLES),
+	expand("bismarkSE/dedup/{sample}_merged.bam", sample = SAMPLES),
 	expand("bismarkSE/CX/{CX_ext1}_{CX_ext2}_{sample}_merged.txt.gz", sample = SAMPLES, CX_ext1 = CX_ext1, CX_ext2 = CX_ext2),
 	expand("bismarkSE/CX/{sample}_merged{CX_report}", sample = SAMPLES, CX_report = CX_report),
 	expand("bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.{c2c}", sample = SAMPLES, c2c = c2c),
-	expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz", sample = SAMPLES),
-	expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_GpC.gz", sample = SAMPLES)
-	
+	expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_GpC.gz", sample = SAMPLES),
+	"tables/bismarkSE_mapping_report.txt",
+	"plots/counts_stats/coverageBar.pdf",
+        "plots/counts_stats/GWmethylRate.pdf",
+        "plots/counts_stats/GWaccessRate.pdf",
+        "tables/sample_read_report.txt",
+        "plots/counts_stats/meanMethyl_vs_meanAccess.pdf",
+        "plots/counts_stats/meanRatevsCoverage.pdf",
+        "plots/counts_stats/meanRateLinePlot.pdf",
+        "plots/counts_stats/coverageLinePlot.pdf",
+        "plots/counts_stats/meanRateBoxPlot.pdf",
+        "plots/counts_stats/coverageBoxPlot.pdf",
+        "plots/counts_stats/coverageDensityPlot.pdf",
+        "plots/counts_stats/qc_accessCoverageBar.pdf",
+        "plots/counts_stats/qc_methylCoverageBar.pdf",
+	"plots/met_acc_QC/qc_accessCoverageBar.pdf",
+        "plots/met_acc_QC/qc_methylCoverageBar.pdf",
+        "plots/met_acc_QC/qc_methylMeanCoverageBar.pdf",
+        "plots/met_acc_QC/qc_accessMeanCoverageBar.pdf",
+        "plots/met_acc_QC/qc_meanRateBoxPlot.pdf",
+        "plots/met_acc_QC/qc_coverageBoxPlot.pdf",
+        "tables/sample_stats_qcPass.txt",
+        "tables/sample_read_report_qcPASS.txt"
 
 ## must include all rules
 include: "rules/bismart.smk"
+include: "rules/QC.smk"
 
 ## results ask Joey about result dirs not use if it is required
