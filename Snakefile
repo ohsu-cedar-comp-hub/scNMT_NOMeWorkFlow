@@ -95,10 +95,15 @@ rule all:
         "plots/met_acc_QC/qc_meanRateBoxPlot.pdf",
         "plots/met_acc_QC/qc_coverageBoxPlot.pdf",
         "tables/sample_stats_qcPass.txt",
-        "tables/sample_read_report_qcPASS.txt"
+        "tables/sample_read_report_qcPASS.txt",
+	"data/accessibility_at_promoters.pdf",
+	"data/accessibility_at_promoters.RData",
+	"data/anno/body.bed",
+	"data/anno/promoters.bed"
 
 ## must include all rules
 include: "rules/bismart.smk"
 include: "rules/QC.smk"
+include: "rules/profiles.smk"
 
 ## results ask Joey about result dirs not use if it is required

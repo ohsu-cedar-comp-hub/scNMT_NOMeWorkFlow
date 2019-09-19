@@ -105,5 +105,21 @@
 	"e" : "logs/met_acc_QC/met_acc_QC%j.err",
 	"c" : 1,
 	"mem" : 16000
+    },
+    "get_genes" :
+    {
+	"J" : "get_genes",
+	"o" : "logs/get_genes/get_genes_%j.out",
+	"e" : "logs/get_genes/get_genes_%j.err",
+	"c" : 1,
+	"mem" : 16000
+    },
+    "accessibility_profile" :
+    {
+	"J" : "accessibility_profile",
+	"o" : "logs/accessibility_profile/accessibility_profile_%j.out",
+	"e" : "logs/accessibility_profile/accessibility_profile_%e.out",
+	"c" : 1,
+	"mem" : 64000
     }
 }
