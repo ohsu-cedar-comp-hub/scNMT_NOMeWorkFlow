@@ -41,12 +41,26 @@ if(length(args)==0 || !is.na(charmatch("-help",args))){
     io$qc_file   <- sub( '--qcFile=', '', args[grep('--qcFile=', args)])
     opts$context <- sub( '--context=', '',args[grep('--context=',args)])
     io$out_dir   <- sub( '--outDir=', '',args[grep('--outDir=',args)])
-    covCutOff    <- sub( '--outDir=', '',args[grep('--outDir=',args)])
+    covCutOff    <- sub( '--covCutoff', '',args[grep('--covCutoff=',args)])
 
 }
 
-if (identical(StepSize,character(0))){
-    opts$covCutOff <- 0
+### Test Values ###
+setwd("/home/groups/CEDAR/doe/methylome-pipeline/test_git/scNMT_NOMeWorkFlow")
+io$raw_acc <- "bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
+WinSize <- 100
+promUp <- 2000
+StepSize <- 20
+io$anno <- "data/gene_hg19.cellRanger_metadata.tsv"
+io$qc_file <- "tables/sample_stats_qcPass.txt"
+opts$context <- "CG"
+io$out_dir <- "data"
+covCutOff <- character(0)
+
+###
+
+if (identical(covCutOff,character(0))){
+    opts$covCutOff <- FALSE
 }else{
     opts$covCutOff <- as.numeric(covCutOff)
 }
@@ -93,10 +107,10 @@ meta <- fread(io$qc_file) %>%
 cells <- unique(meta[, id])
 
 if( opts$context == "GC" ){
-    files <- paste0(io$raw_acc,  "/",cells, "_GpC.tsv.gz") %>%
+    files <- paste0(io$raw_acc,  "/",cells, "_GpC.gz") %>%
         .[file.exists(.)]
 }else{
-    files <- paste0(io$raw_acc,  "/",cells, "_CpG.tsv.gz") %>%
+    files <- paste0(io$raw_acc,  "/",cells, "_CpG.gz") %>%
         .[file.exists(.)]
 }    
 
@@ -121,7 +135,7 @@ prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=2000, downstream=2
 
 df   <- prom[,.(seqnames, start, end, strand, ens_id, "promoter")]
 fwrite(df[!seqnames %in% c("MT", "Y"), ]
-     , paste0(paste(io$out_dir, "anno", sep="/"), "/", "promters.bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
+     , paste0(paste(io$out_dir, "anno", sep="/"), "/", "promoters.bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
 
 ##############
 # make windows
@@ -130,7 +144,7 @@ boo        <- as(prom, "GRanges")
 names(boo) <- boo$ens_id
 
 #hmm <- unlist(slidingWindows(boo, 50, step=50))
-hmm        <- unlist(slidingWindows(boo, opts$win, step=opts$step))
+hmm        <- unlist(slidingWindows(boo, opts$WinSize, step=opts$StepSize))
 hmm$ens_id <- sub("\\..*", "", names(hmm))
 
 # get anno for windows
@@ -166,6 +180,8 @@ acc <- acc[order(acc$cell, acc$dist),]
 
 save(acc,file=paste(io$out_dir, "accessibility_at_promoters.RData", sep="/"))
 
+is.odd <- function(x) x %% 2 != 0
+
 Avg           <- acc[seq(1,nrow(acc), by=1) %>% is.odd(), ] %>% .[,rate:=0]
 Rate          <- vector()
 for( i in seq(1,nrow(acc)-1,by=2)){
@@ -185,10 +201,10 @@ p <- ggplot(Avg, aes(dist, rate, colour = cell)) +
     theme_bw() +
     guides(colour = FALSE)
 p
-save_plot(paste(io$out_dir,"accessibility_at_promoters.pdf",sep"/"), p)
+save_plot(paste(io$out_dir,"accessibility_at_promoters.pdf",sep="/"), p)
 
 ### repeat with only cells passing stricter threshold ###
-if(opts$covCutOff > 0){
+if(opts$covCutOff != FALSE){
     qc <- fread(io$qc_file) %>%
         .[, sample := strsplit(sample, "_") %>% map_chr(1)]
     
@@ -199,7 +215,7 @@ if(opts$covCutOff > 0){
         geom_line() 
     p2
 
-    pdf(paste(io$out_dir,"accessibility_at_promoters_top_cells_250bp.pdf",sep"/"), 8, 8)
+    pdf(paste(io$out_dir,"accessibility_at_promoters_top_cells_250bp.pdf",sep="/"), 8, 8)
     print(p2)
     dev.off()
 }

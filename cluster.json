@@ -24,7 +24,7 @@
         "o" : "logs/mapping_R1/mapReads_single_controls_R1%j.out",
         "e" : "logs/mapping_R1/mapReads_single_controls_R1%j.err",
         "c" : 4,
-        "mem" : 16000
+        "mem" : 64000
     },
     "mapping_R2" :
     {
@@ -32,7 +32,7 @@
         "o" : "logs/mapping_R2/mapReads_single_controls_R2%j.out",
         "e" : "logs/mapping_R2/mapReads_single_controls_R2%j.err",
         "c" : 4,
-        "mem" : 16000
+        "mem" : 64000
     },
     "deduplcate_bam_R1" :
     {
@@ -80,6 +80,46 @@
 	"o" : "logs/binarize/binarize%j.out",
 	"e" : "logs/binarize/binarize%j.err",
 	"c" : 6,
+	"mem" : 64000
+    },
+    "create_reports" :
+    {
+	"J" : "create_reports",
+	"o" : "logs/create_reports/create_reports%j.out",
+	"e" : "logs/create_reports/create_reports%j.err",
+	"c" : 1,
+	"mem" : 16000
+    },
+    "counts_stats" :
+    {
+	"J" : "counts_stats",
+	"o" : "logs/counts_stats/counts_stats%j.out",
+	"e" : "logs/counts_stats/counts_stats%j.err",
+	"c" : 1,
+	"mem" : 16000
+    },
+    "met_acc_QC" :
+    {
+	"J" : "met_acc_QC",
+	"o" : "logs/met_acc_QC/met_acc_QC%j.out",
+	"e" : "logs/met_acc_QC/met_acc_QC%j.err",
+	"c" : 1,
+	"mem" : 16000
+    },
+    "get_genes" :
+    {
+	"J" : "get_genes",
+	"o" : "logs/get_genes/get_genes_%j.out",
+	"e" : "logs/get_genes/get_genes_%j.err",
+	"c" : 1,
+	"mem" : 16000
+    },
+    "accessibility_profile" :
+    {
+	"J" : "accessibility_profile",
+	"o" : "logs/accessibility_profile/accessibility_profile_%j.out",
+	"e" : "logs/accessibility_profile/accessibility_profile_%e.out",
+	"c" : 1,
 	"mem" : 64000
     }
 }

@@ -134,3 +134,14 @@ rule binarize:
 	Rscript scripts/binarize.R --infile={input[0]} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
 	Rscript scripts/binarize.R --infile={input[1]} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
         """
+
+rule create_reports:
+     input:
+        expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz", sample = SAMPLES)
+     output:
+        "tables/bismarkSE_mapping_report.txt"
+     shell:
+        "bash scripts/reports.sh"
+        
+
+

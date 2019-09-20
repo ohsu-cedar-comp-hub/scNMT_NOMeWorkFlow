@@ -1,13 +1,34 @@
-library(data.table)
-library(purrr)
-library(ggplot2)
+args <- commandArgs()
 
-setwd("/home/groups/CEDAR/woodfin/projects/NMT-seq/20190627_NM_rename/")
-
-Dir <- "plots/QC/noFilter"
-if(!(file.exists(Dir))) {
-    dir.create(Dir,FALSE,TRUE)  
+help <- function(){
+    cat("counts_stats.R :
+- Count Stats.
+- output is plots found in plots folder")
+    cat("Usage: \n")
+    cat("--outdir    : Path to output dir  [ required ]\n")
+    cat("\n")
+    q()
 }
+
+## Save values of each argument
+if(!is.na(charmatch("--help",args)) || !is.na(charmatch("-h",args)) ){
+    help()
+} else {
+    outdir   <- sub( '--outdir=', '', args[grep('--outdir=', args)] )
+
+}
+
+## Load libraries
+suppressMessages(library(data.table))
+suppressMessages(library(purrr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(argparse))
+
+if(!(file.exists( outdir ))) {
+    dir.create(outdir,FALSE,TRUE)  
+}
+
+Dir <- outdir
 
 cellsToDrop <- "Ignore"
 
@@ -37,9 +58,9 @@ head(stats)
 
 for (cell in opts$cells) {
   # Met
-    if ( file.exists(sprintf("%s/%s_CpG.tsv.gz",io$in.met_data,cell)) ) {
+    if ( file.exists(sprintf("%s/%s_CpG.gz",io$in.met_data,cell)) ) {
      print( sprintf("Loading %s methylation...",cell) )
-     tmp <- fread(sprintf("zcat < %s/%s_CpG.tsv.gz",io$in.met_data,cell)
+     tmp <- fread(sprintf("zcat < %s/%s_CpG.gz",io$in.met_data,cell)
                 , sep="\t", verbose=F, showProgress=F)
      stats[sample==cell & context=="CG",coverage:=nrow(tmp)] 
      stats[sample==cell & context=="CG",mean:=mean(tmp$rate)] 
@@ -47,9 +68,9 @@ for (cell in opts$cells) {
      print(sprintf("Sample %s not found for methylation",cell)) 
    }
   # Acc
-    if ( file.exists(sprintf("%s/%s_GpC.tsv.gz", io$in.met_data, cell )) ) {
+    if ( file.exists(sprintf("%s/%s_GpC.gz", io$in.met_data, cell )) ) {
      print(sprintf("Loading %s accessibility...",cell))
-     tmp <- fread(sprintf("zcat < %s/%s_GpC.tsv.gz",io$in.met_data,cell)
+     tmp <- fread(sprintf("zcat < %s/%s_GpC.gz",io$in.met_data,cell)
                 , sep="\t", verbose=F, showProgress=F)
      stats[sample==cell & context=="GC",coverage:=nrow(tmp)] 
      stats[sample==cell & context=="GC",mean:=mean(tmp$rate)] 
@@ -200,12 +221,12 @@ dev.off()
 ##########################
 # make read mapping report
 ##########################
-Reads       <- fread("tables/bismarkSE_mapping_report.txt", sep="\t", verbose=F, showProgress=F)
+Reads       <- read.table("tables/bismarkSE_mapping_report.txt", sep="\t", header = T, fill = T)
 sampleReads <- data.table(sample=paste(stats$sample) )
 
 for( x in unique(paste(stats$sample)) ){    
-    Tot <- sum(Reads[Reads$Sample==paste0(x,"_R1") | Reads$Sample==paste0(x,"_R2") , TotalReads] )
-    Map <- sum(Reads[Reads$Sample==paste0(x,"_R1") | Reads$Sample==paste0(x,"_R2") , MappedReads] )
+    Tot <- sum(Reads[Reads$Sample==paste0(x,"_R1") | Reads$Sample==paste0(x,"_R2") , which(colnames(Reads)=="TotalReads")] )
+    Map <- sum(Reads[Reads$Sample==paste0(x,"_R1") | Reads$Sample==paste0(x,"_R2") , which(colnames(Reads)=="TotalReads")] )
     Per <- round(Map/Tot*100,2)
     sampleReads[sample==x ,total_reads:=Tot]
     sampleReads[sample==x , mapped_reads:=Map]
@@ -277,7 +298,7 @@ dev.off()
 ## histograms
 ################################
 foo <- stats[order(mean),]
-foo %>% setkey(mean) %>% .[,sample:=factor(sample,levels=sample)]
+foo %>% setkey(mean) %>% .[,sample:=factor(sample,levels=unique(sample))]
 
 
 p <- ggplot(foo, aes(x=sample, y=mean, group=context)) +
@@ -419,7 +440,7 @@ for (Context in c("GC","CG")){
     names(stats.tmp)  <- sub("sample", "id", names(stats.tmp))
     if(Context=="GC"){
         Title <- "Chromatin accessibility"
-        fname <- "qc_accessCovergeBar.pdf"
+        fname <- "qc_accessCoverageBar.pdf"
         col   <- "#F87D42"
         tmp   <- stats.tmp[,c("id","coverage")] %>%
             setkey(coverage) %>% .[,id:=factor(id,levels=id)]
