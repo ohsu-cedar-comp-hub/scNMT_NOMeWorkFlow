@@ -2,10 +2,7 @@ args <- commandArgs()
 
 help <- function(){
     cat("accessibility_profiles.R :
-- Make profiles plots around promoters.
-- Output will be save in the parsed directory in the covPath.
-- The promter and body regions (gene body without promoter) will be saved in the outDir
-- .\n")
+Make profiles plots around promoters. Output will be save in the parsed directory in the covPath. The promter and body regions (gene body without promoter) will be saved in the outDir.\n")
     cat("Usage: \n")
     cat("--covPath     : path to acc or met data (tsv.gz)                    [required]
                           format: <chr pos met_reads nonmet_reads rate>            \n")
@@ -21,7 +18,7 @@ help <- function(){
                            context must either be GC or CG                             \n")
     cat("--context     : either GC or CG                                     [required]
                           assumes files end in _CpG.tsv.gz or _CpG.tsv.gz          \n")
-    cat("--covCutoff   : coverage cutoff for high quality cells (ex 1e7)     [optional; default = off]\n")
+    cat("--covCutOff   : coverage cutoff for high quality cells              [optional]\n")
     cat("\n")
     q()
 }
@@ -30,37 +27,24 @@ io   <- list()
 opts <- list()
 
 ## Save values of each argument
-if(length(args)==0 || !is.na(charmatch("-help",args))){
+if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
     help()
 } else {
     io$raw_acc   <- sub( '--covPath=', '', args[grep('--covPath=', args)] )
     WinSize      <- sub( '--WinSize=', '', args[grep('--WinSize=', args)] )
-    promUp       <- as.numeric( sub( '--promUp=', '', args[grep('--promUp=', args)] ))
+    promUp       <- sub( '--promUp=', '', args[grep('--promUp=', args)] )
     StepSize     <- sub( '--StepSize=', '', args[grep('--StepSize=', args)])
     io$anno      <- sub( '--annoFile=', '', args[grep('--annoFile=', args)])
     io$qc_file   <- sub( '--qcFile=', '', args[grep('--qcFile=', args)])
     opts$context <- sub( '--context=', '',args[grep('--context=',args)])
     io$out_dir   <- sub( '--outDir=', '',args[grep('--outDir=',args)])
-    covCutOff    <- sub( '--covCutoff', '',args[grep('--covCutoff=',args)])
+    covCutOff    <- sub( '--covCutOff=', '',args[grep('--covCutOff=',args)])
+    
 
 }
 
-### Test Values ###
-setwd("/home/groups/CEDAR/doe/methylome-pipeline/test_git/scNMT_NOMeWorkFlow")
-io$raw_acc <- "bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
-WinSize <- 100
-promUp <- 2000
-StepSize <- 20
-io$anno <- "data/gene_hg19.cellRanger_metadata.tsv"
-io$qc_file <- "tables/sample_stats_qcPass.txt"
-opts$context <- "CG"
-io$out_dir <- "data"
-covCutOff <- character(0)
-
-###
-
-if (identical(covCutOff,character(0))){
-    opts$covCutOff <- FALSE
+if (identical(StepSize,character(0))){
+    opts$covCutOff <- 0
 }else{
     opts$covCutOff <- as.numeric(covCutOff)
 }
@@ -76,15 +60,15 @@ if(!(file.exists( paste(io$out_dir, "anno", sep="/") ))) {
 }
 
 if (identical(WinSize,character(0))){
-   opts$WinSize <- 100
+   opts$win <- 100
 }else{
-   opts$WinSize <- as.numeric(WinSize)
+   opts$win <- as.numeric(WinSize)
 }
 
 if (identical(StepSize,character(0))){
-   opts$StepSize <- 20
+   opts$step <- 20
 }else{
-   opts$StepSize <- as.numeric(StepSize)
+   opts$step <- as.numeric(StepSize)
 }
 
 if (identical(promUp,character(0))){
@@ -95,37 +79,65 @@ if (identical(promUp,character(0))){
     opts$promDown <- as.numeric(promUp)
 }
 
+if(opts$context == "GC"){
+    opts$outName <- "accessibility"
+}else{
+    opts$outName <- "methylation"
+}
+
 library(data.table)
 library(purrr)
 library(ggplot2)
 library(cowplot)
 library(GenomicRanges)
+library(dplyr)
+library(GenomeInfoDb)
+
+## debugging
+#io         <- list()
+#io$raw_acc <- "/home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
+#io$qc_file <- "/home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/tables/sample_stats_qcPass.txt"
+#io$anno    <- "/home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/anno/hg19/gene_hg19.cellRanger_metadata.tsv"
+#opts <- list()
+#opts$win <- 100
+#opts$step <- 20
+#opts$context <- "CG"
+#opts$promUp <- 2000
+#io$out_dir <- "/home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/plots/profiles"
+#opts$covCutOff <- 1e7
+
+print(io)
+print(opts)
 
 meta <- fread(io$qc_file) %>%
-  .[pass_accQC == TRUE & pass_metQC == TRUE]
+    .[pass_accQC == TRUE & pass_metQC == TRUE]
+print(meta)
 
 cells <- unique(meta[, id])
 
 if( opts$context == "GC" ){
-    files <- paste0(io$raw_acc,  "/",cells, "_GpC.gz") %>%
+    files <- paste0(io$raw_acc,  "/",cells, "_GpC.tsv.gz") %>%
         .[file.exists(.)]
 }else{
-    files <- paste0(io$raw_acc,  "/",cells, "_CpG.gz") %>%
+    files <- paste0(io$raw_acc,  "/",cells, "_CpG.tsv.gz") %>%
         .[file.exists(.)]
 }    
+head(files)
 
 prom <- fread(io$anno) %>%
   .[strand == "+", tss := start] %>%
   .[strand == "-", tss := end] %>% .[!chr %in% c("MT", "Y")]
+print(prom)
 
 gr <- as(prom, "GRanges") %>% .[width(.) > opts$promUp]
+print(gr)
 
 # save gene body info for correlations
 body      <- resize(gr, fix='end', width=width(gr)-opts$promUp )
 body$anno <- "body"
 body      <- as.data.table(body)
 df        <- body[,.(seqnames, start, end, strand, ens_id, anno)]
-
+print(head(df))
 
 fwrite(df
      , paste0(paste(io$out_dir, "anno", sep="/"), "/", "body.bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
@@ -135,7 +147,7 @@ prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=2000, downstream=2
 
 df   <- prom[,.(seqnames, start, end, strand, ens_id, "promoter")]
 fwrite(df[!seqnames %in% c("MT", "Y"), ]
-     , paste0(paste(io$out_dir, "anno", sep="/"), "/", "promoters.bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
+     , paste0(paste(io$out_dir, "anno", sep="/"), "/", "promters.bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
 
 ##############
 # make windows
@@ -144,7 +156,7 @@ boo        <- as(prom, "GRanges")
 names(boo) <- boo$ens_id
 
 #hmm <- unlist(slidingWindows(boo, 50, step=50))
-hmm        <- unlist(slidingWindows(boo, opts$WinSize, step=opts$StepSize))
+hmm        <- unlist(slidingWindows(boo, opts$win, step=opts$step))
 hmm$ens_id <- sub("\\..*", "", names(hmm))
 
 # get anno for windows
@@ -177,16 +189,18 @@ acc <- map2(cells, files, ~{
   rbindlist()
 
 acc <- acc[order(acc$cell, acc$dist),]
+print(head(acc))
+save(acc,file=paste(io$out_dir, paste0(opts$outName, "_at_promoters.RData"), sep="/"))
 
-save(acc,file=paste(io$out_dir, "accessibility_at_promoters.RData", sep="/"))
 
 is.odd <- function(x) x %% 2 != 0
+is.even <- function(x) x %% 2 == 0
 
 Avg           <- acc[seq(1,nrow(acc), by=1) %>% is.odd(), ] %>% .[,rate:=0]
-Rate          <- vector()
+Rate <- vector()
 for( i in seq(1,nrow(acc)-1,by=2)){
   tmp         <- acc[c(i,i+1)] 
-  Rate        <- mean(tmp$rate)
+  Rate <- mean(tmp$rate)
 }
 
 Rate <- as.data.frame(do.call(rbind,lapply(seq(1,nrow(acc)-1,by=2), function(i){ 
@@ -195,28 +209,26 @@ Rate <- as.data.frame(do.call(rbind,lapply(seq(1,nrow(acc)-1,by=2), function(i){
 })))
 
 Avg$rate <- Rate[,1]
-  
+
 p <- ggplot(Avg, aes(dist, rate, colour = cell)) +
     geom_line() +
     theme_bw() +
     guides(colour = FALSE)
 p
-save_plot(paste(io$out_dir,"accessibility_at_promoters.pdf",sep="/"), p)
+
+save_plot(paste(io$out_dir, paste0(opts$outName, "_at_promoters.pdf"),sep="/"), p)
 
 ### repeat with only cells passing stricter threshold ###
-if(opts$covCutOff != FALSE){
+if(opts$covCutOff > 0){
     qc <- fread(io$qc_file) %>%
         .[, sample := strsplit(sample, "_") %>% map_chr(1)]
-    
     top_cells <- qc[context ==  opts$context & coverage > opts$covCutOff, id]
-
-    sub <-  acc[cell %in% top_cells]
-    p2 <- ggplot(sub[seq(1,nrow(sub), by=1) %>% is.even(), ], aes(dist, rate, colour = cell)) +
+    sub <-  Avg[cell %in% top_cells]
+    p2 <- ggplot(sub, aes(dist, rate, colour = cell)) +
+        theme_bw() +
         geom_line() 
     p2
-
-    pdf(paste(io$out_dir,"accessibility_at_promoters_top_cells_250bp.pdf",sep="/"), 8, 8)
+    pdf(paste(io$out_dir, paste0(opts$outName, "_at_promoters_top_cells.pdf"),sep="/"), 8, 8)
     print(p2)
     dev.off()
 }
-
