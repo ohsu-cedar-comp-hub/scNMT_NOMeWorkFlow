@@ -14,4 +14,4 @@ rule accessibility_profile:
         "data/anno/body.bed",
         "data/anno/promoters.bed"
      shell:
-        "Rscript scripts/accessibility_profiles.R --covPath=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --outDir=data --annoFile={input[1]} --qcFile={input[0]} --context=CG"
+        "Rscript scripts/accessibility_profiles.R --covPath=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --outDir=data --annoFile={input[1]} --qcFile={input[0]} --context=GC"
