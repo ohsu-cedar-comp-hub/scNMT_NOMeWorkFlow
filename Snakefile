@@ -99,7 +99,9 @@ rule all:
 	"data/accessibility_at_promoters.pdf",
 	"data/accessibility_at_promoters.RData",
 	"data/anno/body.bed",
-	"data/anno/promoters.bed"
+	"data/anno/promoters.bed",
+	"data/methylation_at_promoters.pdf",
+	"data/methylation_at_promoters.RData"
 
 ## must include all rules
 include: "rules/bismart.smk"
