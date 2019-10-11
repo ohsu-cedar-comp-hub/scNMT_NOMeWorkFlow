@@ -51,12 +51,11 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 #io$qc_file <- "tables/sample_stats_qcPass.txt"
 #opts$context <- "CG"
 #WinSize <- 100
-#promUp <- 2000
+#promUp <- 10000
 #StepSize <- 20
 #covCutOff <- ""
 
 ##################
-
 
 if (identical(StepSize,character(0))){
     opts$covCutOff <- 0
@@ -99,6 +98,7 @@ if(opts$context == "GC"){
 }else{
     opts$outName <- "methylation"
 }
+
 
 library(data.table)
 library(purrr)
@@ -158,7 +158,7 @@ fwrite(df
      , paste0(paste(io$out_dir, "anno", sep="/"), "/", "body.bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
 
 # save promoter info
-prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=2000, downstream=2000))
+prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=opts$promUp, downstream=opts$promUp))
 
 df   <- prom[,.(seqnames, start, end, strand, ens_id, "promoter")]
 fwrite(df[!seqnames %in% c("MT", "Y"), ]
@@ -199,7 +199,7 @@ acc <- map2(cells, files, ~{
           rate)] %>%
     setkey(chr, start, end) %>%
     foverlaps(anno, nomatch = 0L) %>%
-    .[, .(rate = mean(rate), cell = cell), dist]
+    .[, .(sd_down = mean(rate)-sd(rate), sd_up = mean(rate)+sd(rate), rate = mean(rate), cell = cell), dist]
 }) %>%
   rbindlist()
 
@@ -211,12 +211,14 @@ save(acc,file=paste(io$out_dir, paste0(opts$outName, "_at_promoters.RData"), sep
 is.odd <- function(x) x %% 2 != 0
 is.even <- function(x) x %% 2 == 0
 
+### Finding Mean ###
+
 Avg           <- acc[seq(1,nrow(acc), by=1) %>% is.odd(), ] %>% .[,rate:=0]
-Rate <- vector()
-for( i in seq(1,nrow(acc)-1,by=2)){
-  tmp         <- acc[c(i,i+1)] 
-  Rate <- mean(tmp$rate)
-}
+#Rate <- vector()
+#for( i in seq(1,nrow(acc)-1,by=2)){
+#  tmp         <- acc[c(i,i+1)] 
+#  Rate <- mean(tmp$rate)
+#}
 
 Rate <- as.data.frame(do.call(rbind,lapply(seq(1,nrow(acc)-1,by=2), function(i){ 
   tmp         <- acc[c(i,i+1)]
@@ -225,11 +227,35 @@ Rate <- as.data.frame(do.call(rbind,lapply(seq(1,nrow(acc)-1,by=2), function(i){
 
 Avg$rate <- Rate[,1]
 
-p <- ggplot(Avg, aes(dist, rate, colour = cell)) +
-    geom_line() +
+###################
+
+cell_Avg <- tapply(Avg$rate, Avg$dist, mean)
+cell_sd <- tapply(Avg$rate, Avg$dist, sd)
+
+test_df <- as.data.frame(cbind(cell_Avg, cell_sd))
+test_df$dist <- rownames(test_df)
+test_df <- as.data.table(test_df)
+test_df$dist <- as.integer(test_df$dist)
+
+p <- ggplot(test_df, aes(dist)) +
+    geom_ribbon(aes(y = cell_Avg, ymin = cell_Avg-cell_sd, ymax = cell_Avg+cell_sd), alpha = 0.25) +
+    geom_line(aes(y = cell_Avg), color = "red") +
     theme_bw() +
-    guides(colour = FALSE)
+    guides(colour = FALSE) +
+    labs(y="Rate",x="Distance from Promoter")
 p
+
+save_plot(paste(io$out_dir, paste0(opts$outName, "_average_promoters.pdf"),sep="/"), p)
+
+p <- ggplot(Avg, aes(dist)) +
+    geom_line(aes(y = sd_down, colour = cell), linetype = "dashed") +
+    geom_line(aes(y = rate, colour = cell)) +
+    geom_line(aes(y = sd_up, colour = cell), linetype = "dashed") +
+    theme_bw() +
+    guides(colour = FALSE) +
+    labs(y="Rate",x="Distance from Promoter")
+p
+
 
 save_plot(paste(io$out_dir, paste0(opts$outName, "_at_promoters.pdf"),sep="/"), p)
 
@@ -250,3 +276,5 @@ if(!is.na(opts$covCutOff)) {
         dev.off()
     }
 }
+
+
