@@ -11,7 +11,7 @@ io <- list()
 io$meta_data <- "Box/external/MCF7_NMTseq_downstream/sample_stats_qcPass.txt"
 io$met_dir   <- "Box/external/MCF7_NMTseq_downstream/met/parsed_arw/"
 io$acc_dir   <- "Box/external/MCF7_NMTseq_downstream/acc/parsed_arw/"
-io$plot_dir  <- "Box/external/MCF7_NMTseq_downstream/plots/corr"
+io$plot_dir  <- "Box/external/MCF7_NMTseq_downstream/plots/genomicRates"
 io$anno_dir  <- "Box/external/MCF7_NMTseq_downstream/features/anno/"
 
 opts <- list()
@@ -48,7 +48,7 @@ p <-
   scale_fill_manual("legend", values = c("acc" = "#F87D42", "met" = "#00136C"))+
   ylab("rate") +
   xlab("") +
-  ggtitle("Rates across genomic loci") +
+  ggtitle("Rates for all cells") +
   coord_flip()+
   theme_bw() +
   theme(
@@ -73,7 +73,7 @@ p2 <-
   scale_fill_manual("legend", values = c("acc" = "#F87D42", "met" = "#00136C"))+
   ylab("varience") +
   xlab("") +
-  ggtitle("Varience across genomic loci") +
+  ggtitle("Varience across all cells") +
   coord_flip()+
   theme_bw() +
   theme(
@@ -94,3 +94,70 @@ if( !exists(io$plot_dir) ){
 
 save_plot(paste(io$plot_dir, "accmet_rates_anno.boxplot.pdf", sep="/"), p, base_width = 6, base_height = 6)
 save_plot(paste(io$plot_dir, "accmet_variance_anno.boxplot.pdf", sep="/"), p2, base_width = 6, base_height = 6)
+
+##############################
+## plot varience across cells
+# https://github.com/PMBio/scNMT-seq/blob/master/EB_cells/stats/stats_accmet_features_parsed.Rmd
+
+boxplot_theme <- function() {
+  p <- theme(
+    plot.title = element_blank(),
+    axis.title.y = element_blank(),
+    axis.title.x = element_text(colour="black", size=20, vjust=1.5, margin=margin(10,0,0,0)),
+    axis.text.x = element_text(colour="black",size=rel(1.7)),
+    axis.text.y = element_text(colour="black",size=rel(1.7)),
+    axis.line = element_line(colour="black", size=rel(0.7)),
+    axis.ticks.x = element_line(colour="black", size=rel(1.0)),
+    axis.ticks.y = element_line(colour="black", size=rel(1.0)),
+    # axis.ticks.y = element_blank(),
+    panel.background = element_blank(),
+    panel.grid = element_blank(),
+    legend.position="top",
+    legend.text=element_text(size=15),
+    legend.title=element_blank(),
+    legend.background=element_blank(),
+    panel.border = element_blank()
+  )
+}
+
+feature_stats <- merg[,.(mean=mean(rate, na.rm=T), var=var(rate, na.rm=T)), by=c("anno","id","Type")]
+
+p1 <- ggplot(feature_stats[Type=="acc"], aes(x=anno, y=mean)) +
+  geom_boxplot(aes(fill=Type), alpha = 1, coef=1.5, outlier.shape=NA, color = "gray50") +
+  #facet_grid(Type ~ .) + 
+  ggtitle("") + xlab("") + ylab("Mean accessibility rate") +
+  scale_fill_manual(values=c("#F87D42")) +
+  coord_flip() +
+  boxplot_theme()
+p1
+
+p2 <- ggplot(feature_stats[Type=="met"], aes(x=anno, y=mean)) +
+  geom_boxplot(aes(fill=Type), alpha = 1, coef=1.5, outlier.shape=NA, color="gray50") +
+  #facet_grid(.~Type ~ .) + 
+  ggtitle("") + xlab("") + ylab("Mean accessibility rate") +
+  scale_fill_manual(values=c("#00136C")) +
+  coord_flip() +
+  boxplot_theme()
+p2
+
+p3 <- ggplot(feature_stats[Type=="acc"], aes(x=anno, y=var)) +
+  geom_boxplot(aes(fill=Type), alpha = 1, coef=1.5, outlier.shape=NA, color = "gray50") +
+  #facet_grid(Type ~ .) + 
+  ggtitle("") + xlab("") + ylab("Cell-to-cell variance on the accessibilty rate") +
+  scale_fill_manual(values=c("#F87D42")) +
+  coord_flip() +
+  boxplot_theme()
+p3
+
+p4 <- ggplot(feature_stats[Type=="met"], aes(x=anno, y=var)) +
+  geom_boxplot(aes(fill=Type), alpha = 1, coef=1.5, outlier.shape=NA, color="gray50") +
+  #facet_grid(.~Type ~ .) + 
+  ggtitle("") + xlab("") + ylab("Cell-to-cell variance on the methylation rate") +
+  scale_fill_manual(values=c("#00136C")) +
+  coord_flip() +
+  boxplot_theme()
+p4
+
+pdf(paste0(io$plot_dir,"/boxplots.pdf"), height=12, width=17)
+print(cowplot::plot_grid(p1,p2,p3,p4, labels = c("Mean Rate","Mean Rate","Varience","Varience"), label_size=20, ncol=2, nrow=2))
+dev.off()
