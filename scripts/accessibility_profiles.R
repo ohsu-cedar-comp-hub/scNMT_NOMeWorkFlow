@@ -43,6 +43,21 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 
 }
 
+### Test Input ###
+
+#io$raw_acc <- "bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
+#io$out_dir <- "data"
+#io$anno <- "data/gene_hg19.cellRanger_metadata.tsv"
+#io$qc_file <- "tables/sample_stats_qcPass.txt"
+#opts$context <- "CG"
+#WinSize <- 100
+#promUp <- 2000
+#StepSize <- 20
+#covCutOff <- ""
+
+##################
+
+
 if (identical(StepSize,character(0))){
     opts$covCutOff <- 0
 }else{
@@ -116,10 +131,10 @@ print(meta)
 cells <- unique(meta[, id])
 
 if( opts$context == "GC" ){
-    files <- paste0(io$raw_acc,  "/",cells, "_GpC.tsv.gz") %>%
+    files <- paste0(io$raw_acc,  "/",cells, "_GpC.gz") %>%
         .[file.exists(.)]
 }else{
-    files <- paste0(io$raw_acc,  "/",cells, "_CpG.tsv.gz") %>%
+    files <- paste0(io$raw_acc,  "/",cells, "_CpG.gz") %>%
         .[file.exists(.)]
 }    
 head(files)
@@ -147,7 +162,7 @@ prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=2000, downstream=2
 
 df   <- prom[,.(seqnames, start, end, strand, ens_id, "promoter")]
 fwrite(df[!seqnames %in% c("MT", "Y"), ]
-     , paste0(paste(io$out_dir, "anno", sep="/"), "/", "promters.bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
+     , paste0(paste(io$out_dir, "anno", sep="/"), "/", "promoters.bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
 
 ##############
 # make windows
@@ -219,16 +234,19 @@ p
 save_plot(paste(io$out_dir, paste0(opts$outName, "_at_promoters.pdf"),sep="/"), p)
 
 ### repeat with only cells passing stricter threshold ###
-if(opts$covCutOff > 0){
-    qc <- fread(io$qc_file) %>%
-        .[, sample := strsplit(sample, "_") %>% map_chr(1)]
-    top_cells <- qc[context ==  opts$context & coverage > opts$covCutOff, id]
-    sub <-  Avg[cell %in% top_cells]
-    p2 <- ggplot(sub, aes(dist, rate, colour = cell)) +
-        theme_bw() +
-        geom_line() 
-    p2
-    pdf(paste(io$out_dir, paste0(opts$outName, "_at_promoters_top_cells.pdf"),sep="/"), 8, 8)
-    print(p2)
-    dev.off()
+
+if(!is.na(opts$covCutOff)) {
+    if(opts$covCutOff > 0){
+        qc <- fread(io$qc_file) %>%
+            .[, sample := strsplit(sample, "_") %>% map_chr(1)]
+        top_cells <- qc[context ==  opts$context & coverage > opts$covCutOff, id]
+        sub <-  Avg[cell %in% top_cells]
+        p2 <- ggplot(sub, aes(dist, rate, colour = cell)) +
+            theme_bw() +
+            geom_line() 
+        p2
+        pdf(paste(io$out_dir, paste0(opts$outName, "_at_promoters_top_cells.pdf"),sep="/"), 8, 8)
+        print(p2)
+        dev.off()
+    }
 }

@@ -118,8 +118,16 @@
     {
 	"J" : "accessibility_profile",
 	"o" : "logs/accessibility_profile/accessibility_profile_%j.out",
-	"e" : "logs/accessibility_profile/accessibility_profile_%e.out",
+	"e" : "logs/accessibility_profile/accessibility_profile_%j.err",
 	"c" : 1,
 	"mem" : 64000
-    }
+    },
+    "methylation_profile" :
+    {
+	"J" : "methylation_profile",
+	"o" : "logs/methylation_profile/methylation_profile_%j.out",
+	"e" : "logs/methylation_profile/methylation_profile_%j.err",
+	"c" : 1,
+	"mem" : 64000
+    }	
 }
