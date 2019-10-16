@@ -120,7 +120,7 @@ acc_dt <- future_map2(files, cells, ~{
           rate)] %>%
     setkey(chr, start, end) %>%
     foverlaps(anno, nomatch = 0L) %>% 
-    .[, .(rate = round(100 * mean(rate)), .N, sample = .y), .(id, anno)]
+    .[, .(rate = round(100 * mean(rate)), Nmet = sum(rate == 1), .N, sample = .y), .(id, anno)]
 }) %>%
   purrr::compact() %>%
   rbindlist()
