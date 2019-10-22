@@ -25,6 +25,7 @@ CX_ext1 = ['CHG','CHH','CpG']
 CX_ext2 = ['CTOT','OT','CTOB','OB']
 CX_report = ['_splitting_report.txt','.bedGraph.gz','.M-bias.txt']
 c2c = ['CpG_report.txt.gz','GpC_report.txt.gz']
+metORacc = ['met','acc']
 
 ## generates log dirs from json file
 with open('cluster.json') as json_file:
@@ -65,10 +66,10 @@ rule all:
         expand("samples/trim/{sample}_R1_val_1_fastqc.zip", sample = SAMPLES),
 	expand("samples/trim/{sample}_R2_val_2_fastqc.html", sample = SAMPLES),
         expand("samples/trim/{sample}_R2_val_2_fastqc.zip", sample = SAMPLES),
-	expand("bismarkSE/{sample}_R1_SE_report.txt", sample = SAMPLES),
-	expand("bismarkSE/{sample}_R2_SE_report.txt", sample = SAMPLES),
-	expand("bismarkSE/dedup/{sample}_R1.deduplication_report.txt", sample = SAMPLES),
-	expand("bismarkSE/dedup/{sample}_R2.deduplication_report.txt", sample = SAMPLES),
+	expand("bismarkSE/{sample}_R1.{sample}_R1_val_1_bismark_bt2_SE_report.txt", sample = SAMPLES),
+	expand("bismarkSE/{sample}_R2.{sample}_R2_val_2_bismark_bt2_SE_report.txt", sample = SAMPLES),
+	expand("bismarkSE/dedup/{sample}_R1.{sample}_R1_val_1_bismark_bt2.deduplication_report.txt", sample = SAMPLES),
+	expand("bismarkSE/dedup/{sample}_R2.{sample}_R2_val_2_bismark_bt2.deduplication_report.txt", sample = SAMPLES),
 	expand("bismarkSE/dedup/{sample}_merged.bam", sample = SAMPLES),
 	expand("bismarkSE/CX/{CX_ext1}_{CX_ext2}_{sample}_merged.txt.gz", sample = SAMPLES, CX_ext1 = CX_ext1, CX_ext2 = CX_ext2),
 	expand("bismarkSE/CX/{sample}_merged{CX_report}", sample = SAMPLES, CX_report = CX_report),
@@ -101,7 +102,19 @@ rule all:
 	"data/anno/body.bed",
 	"data/anno/promoters.bed",
 	"data/methylation_at_promoters.pdf",
-	"data/methylation_at_promoters.RData"
+	"data/methylation_at_promoters.RData",
+	expand("data/{metORacc}/body.tsv.gz", metORacc = metORacc),
+        expand("data/{metORacc}/CGI_promoter.tsv.gz", metORacc = metORacc),
+        expand("data/{metORacc}/CTCF.tsv.gz", metORacc = metORacc),
+        expand("data/{metORacc}/Enhancer.tsv.gz", metORacc = metORacc),
+        expand("data/{metORacc}/MCF7_ER_peaks.tsv.gz", metORacc = metORacc),
+        expand("data/{metORacc}/MCF7_H3K27ac_peaks.tsv.gz", metORacc = metORacc),
+        expand("data/{metORacc}/nonCGI_promoter.tsv.gz", metORacc = metORacc),
+        expand("data/{metORacc}/Repressed.tsv.gz", metORacc = metORacc),
+	"plots/accmet_rates_anno.boxplot.pdf",
+	"plots/accmet_variance_anno.boxplot.pdf",
+	"plots/corr/acc_met_correlations_loci.pdf",
+        "plots/corr/acc_met_correlations_samplesAnno.pdf"
 
 ## must include all rules
 include: "rules/bismart.smk"
