@@ -1,97 +1,97 @@
-ProjectID	SampleID	ReadType
-LIB190610HM	sc_A10_double_det	PE
-LIB190610HM	sc_A11_double_plusDig	PE
-LIB190610HM	sc_A12_double_plusDig	PE
-LIB190610HM	sc_A1_normal	PE
-LIB190610HM	sc_A2_normal	PE
-LIB190610HM	sc_A3_double	PE
-LIB190610HM	sc_A4_double	PE
-LIB190610HM	sc_A5_double_plusVo	PE
-LIB190610HM	sc_A6_double_plusVo	PE
-LIB190610HM	sc_A7_double_ez	PE
-LIB190610HM	sc_A8_double_ez	PE
-LIB190610HM	sc_A9_double_det	PE
-LIB190610HM	sc_B10_double_det	PE
-LIB190610HM	sc_B11_double_plusDig	PE
-LIB190610HM	sc_B12_double_plusDig	PE
-LIB190610HM	sc_B1_normal	PE
-LIB190610HM	sc_B2_normal	PE
-LIB190610HM	sc_B3_double	PE
-LIB190610HM	sc_B4_double	PE
-LIB190610HM	sc_B5_double_plusVo	PE
-LIB190610HM	sc_B6_double_plusVo	PE
-LIB190610HM	sc_B7_double_ez	PE
-LIB190610HM	sc_B8_double_ez	PE
-LIB190610HM	sc_B9_double_det	PE
-LIB190610HM	sc_C10_double_det	PE
-LIB190610HM	sc_C11_double_plusDig	PE
-LIB190610HM	sc_C12_double_plusDig	PE
-LIB190610HM	sc_C1_normal	PE
-LIB190610HM	sc_C2_normal	PE
-LIB190610HM	sc_C3_double	PE
-LIB190610HM	sc_C4_double	PE
-LIB190610HM	sc_C5_double_plusVo	PE
-LIB190610HM	sc_C6_double_plusVo	PE
-LIB190610HM	sc_C7_double_ez	PE
-LIB190610HM	sc_C8_double_ez	PE
-LIB190610HM	sc_C9_double_det	PE
-LIB190610HM	sc_D10_double_det	PE
-LIB190610HM	sc_D11_double_plusDig	PE
-LIB190610HM	sc_D12_double_plusDig	PE
-LIB190610HM	sc_D1_normal	PE
-LIB190610HM	sc_D2_normal	PE
-LIB190610HM	sc_D3_double	PE
-LIB190610HM	sc_D4_double	PE
-LIB190610HM	sc_D5_double_plusVo	PE
-LIB190610HM	sc_D6_double_plusVo	PE
-LIB190610HM	sc_D7_double_ez	PE
-LIB190610HM	sc_D8_double_ez	PE
-LIB190610HM	sc_D9_double_det	PE
-LIB190610HM	sc_E10_double_det	PE
-LIB190610HM	sc_E11_double_plusDig	PE
-LIB190610HM	sc_E12_double_plusDig	PE
-LIB190610HM	sc_E1_normal	PE
-LIB190610HM	sc_E2_normal	PE
-LIB190610HM	sc_E3_double	PE
-LIB190610HM	sc_E4_double	PE
-LIB190610HM	sc_E5_double_plusVo	PE
-LIB190610HM	sc_E6_double_plusVo	PE
-LIB190610HM	sc_E7_double_ez	PE
-LIB190610HM	sc_E8_double_ez	PE
-LIB190610HM	sc_E9_double_det	PE
-LIB190610HM	sc_F10_double_det	PE
-LIB190610HM	sc_F11_double_plusDig	PE
-LIB190610HM	sc_F12_double_plusDig	PE
-LIB190610HM	sc_F1_normal	PE
-LIB190610HM	sc_F2_normal	PE
-LIB190610HM	sc_F3_double	PE
-LIB190610HM	sc_F4_double	PE
-LIB190610HM	sc_F5_double_plusVo	PE
-LIB190610HM	sc_F6_double_plusVo	PE
-LIB190610HM	sc_F7_double_ez	PE
-LIB190610HM	sc_F8_double_ez	PE
-LIB190610HM	sc_F9_double_det	PE
-LIB190610HM	sc_G10_double_det	PE
-LIB190610HM	sc_G11_double_plusDig	PE
-LIB190610HM	sc_G12_double_plusDig	PE
-LIB190610HM	sc_G1_normal	PE
-LIB190610HM	sc_G2_normal	PE
-LIB190610HM	sc_G3_double	PE
-LIB190610HM	sc_G4_double	PE
-LIB190610HM	sc_G5_double_plusVo	PE
-LIB190610HM	sc_G6_double_plusVo	PE
-LIB190610HM	sc_G7_double_ez	PE
-LIB190610HM	sc_G8_double_ez	PE
-LIB190610HM	sc_G9_double_det	PE
-LIB190610HM	sc_H10_double_det	PE
-LIB190610HM	sc_H11_double_plusDig	PE
-LIB190610HM	sc_H12_double_plusDig	PE
-LIB190610HM	sc_H1_normal	PE
-LIB190610HM	sc_H2_normal	PE
-LIB190610HM	sc_H3_double	PE
-LIB190610HM	sc_H4_double	PE
-LIB190610HM	sc_H5_double_plusVo	PE
-LIB190610HM	sc_H6_double_plusVo	PE
-LIB190610HM	sc_H7_double_ez	PE
-LIB190610HM	sc_H8_double_ez	PE
-LIB190610HM	sc_H9_double_det	PE
+ProjectID	SampleID	ReadType	Cell
+LIB190610HM	sc_A10_double_det	PE	sc_A10
+LIB190610HM	sc_A11_double_plusDig	PE	sc_A11
+LIB190610HM	sc_A12_double_plusDig	PE	sc_A12
+LIB190610HM	sc_A1_normal	PE	sc_A1
+LIB190610HM	sc_A2_normal	PE	sc_A2
+LIB190610HM	sc_A3_double	PE	sc_A3
+LIB190610HM	sc_A4_double	PE	sc_A4
+LIB190610HM	sc_A5_double_plusVo	PE	sc_A5
+LIB190610HM	sc_A6_double_plusVo	PE	sc_A6
+LIB190610HM	sc_A7_double_ez	PE	sc_A7
+LIB190610HM	sc_A8_double_ez	PE	sc_A8
+LIB190610HM	sc_A9_double_det	PE	sc_A9
+LIB190610HM	sc_B10_double_det	PE	sc_B10
+LIB190610HM	sc_B11_double_plusDig	PE	sc_B11
+LIB190610HM	sc_B12_double_plusDig	PE	sc_B12
+LIB190610HM	sc_B1_normal	PE	sc_B1
+LIB190610HM	sc_B2_normal	PE	sc_B2
+LIB190610HM	sc_B3_double	PE	sc_B3
+LIB190610HM	sc_B4_double	PE	sc_B4
+LIB190610HM	sc_B5_double_plusVo	PE	sc_B5
+LIB190610HM	sc_B6_double_plusVo	PE	sc_B6
+LIB190610HM	sc_B7_double_ez	PE	sc_B7
+LIB190610HM	sc_B8_double_ez	PE	sc_B8
+LIB190610HM	sc_B9_double_det	PE	sc_B9
+LIB190610HM	sc_C10_double_det	PE	sc_C10
+LIB190610HM	sc_C11_double_plusDig	PE	sc_C11
+LIB190610HM	sc_C12_double_plusDig	PE	sc_C12
+LIB190610HM	sc_C1_normal	PE	sc_C1
+LIB190610HM	sc_C2_normal	PE	sc_C2
+LIB190610HM	sc_C3_double	PE	sc_C3
+LIB190610HM	sc_C4_double	PE	sc_C4
+LIB190610HM	sc_C5_double_plusVo	PE	sc_C5
+LIB190610HM	sc_C6_double_plusVo	PE	sc_C6
+LIB190610HM	sc_C7_double_ez	PE	sc_C7
+LIB190610HM	sc_C8_double_ez	PE	sc_C8
+LIB190610HM	sc_C9_double_det	PE	sc_C9
+LIB190610HM	sc_D10_double_det	PE	sc_D10
+LIB190610HM	sc_D11_double_plusDig	PE	sc_D11
+LIB190610HM	sc_D12_double_plusDig	PE	sc_D12
+LIB190610HM	sc_D1_normal	PE	sc_D1
+LIB190610HM	sc_D2_normal	PE	sc_D2
+LIB190610HM	sc_D3_double	PE	sc_D3
+LIB190610HM	sc_D4_double	PE	sc_D4
+LIB190610HM	sc_D5_double_plusVo	PE	sc_D5
+LIB190610HM	sc_D6_double_plusVo	PE	sc_D6
+LIB190610HM	sc_D7_double_ez	PE	sc_D7
+LIB190610HM	sc_D8_double_ez	PE	sc_D8
+LIB190610HM	sc_D9_double_det	PE	sc_D9
+LIB190610HM	sc_E10_double_det	PE	sc_E10
+LIB190610HM	sc_E11_double_plusDig	PE	sc_E11
+LIB190610HM	sc_E12_double_plusDig	PE	sc_E12
+LIB190610HM	sc_E1_normal	PE	sc_E1
+LIB190610HM	sc_E2_normal	PE	sc_E2
+LIB190610HM	sc_E3_double	PE	sc_E3
+LIB190610HM	sc_E4_double	PE	sc_E4
+LIB190610HM	sc_E5_double_plusVo	PE	sc_E5
+LIB190610HM	sc_E6_double_plusVo	PE	sc_E6
+LIB190610HM	sc_E7_double_ez	PE	sc_E7
+LIB190610HM	sc_E8_double_ez	PE	sc_E8
+LIB190610HM	sc_E9_double_det	PE	sc_E9
+LIB190610HM	sc_F10_double_det	PE	sc_F10
+LIB190610HM	sc_F11_double_plusDig	PE	sc_F11
+LIB190610HM	sc_F12_double_plusDig	PE	sc_F12
+LIB190610HM	sc_F1_normal	PE	sc_F1
+LIB190610HM	sc_F2_normal	PE	sc_F2
+LIB190610HM	sc_F3_double	PE	sc_F3
+LIB190610HM	sc_F4_double	PE	sc_F4
+LIB190610HM	sc_F5_double_plusVo	PE	sc_F5
+LIB190610HM	sc_F6_double_plusVo	PE	sc_F6
+LIB190610HM	sc_F7_double_ez	PE	sc_F7
+LIB190610HM	sc_F8_double_ez	PE	sc_F8
+LIB190610HM	sc_F9_double_det	PE	sc_F9
+LIB190610HM	sc_G10_double_det	PE	sc_G10
+LIB190610HM	sc_G11_double_plusDig	PE	sc_G11
+LIB190610HM	sc_G12_double_plusDig	PE	sc_G12
+LIB190610HM	sc_G1_normal	PE	sc_G1
+LIB190610HM	sc_G2_normal	PE	sc_G2
+LIB190610HM	sc_G3_double	PE	sc_G3
+LIB190610HM	sc_G4_double	PE	sc_G4
+LIB190610HM	sc_G5_double_plusVo	PE	sc_G5
+LIB190610HM	sc_G6_double_plusVo	PE	sc_G6
+LIB190610HM	sc_G7_double_ez	PE	sc_G7
+LIB190610HM	sc_G8_double_ez	PE	sc_G8
+LIB190610HM	sc_G9_double_det	PE	sc_G9
+LIB190610HM	sc_H10_double_det	PE	sc_H10
+LIB190610HM	sc_H11_double_plusDig	PE	sc_H11
+LIB190610HM	sc_H12_double_plusDig	PE	sc_H12
+LIB190610HM	sc_H1_normal	PE	sc_H1
+LIB190610HM	sc_H2_normal	PE	sc_H2
+LIB190610HM	sc_H3_double	PE	sc_H3
+LIB190610HM	sc_H4_double	PE	sc_H4
+LIB190610HM	sc_H5_double_plusVo	PE	sc_H5
+LIB190610HM	sc_H6_double_plusVo	PE	sc_H6
+LIB190610HM	sc_H7_double_ez	PE	sc_H7
+LIB190610HM	sc_H8_double_ez	PE	sc_H8
+LIB190610HM	sc_H9_double_det	PE	sc_H9
