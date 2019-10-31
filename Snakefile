@@ -16,15 +16,20 @@ timestamp = ('{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now()))
 
 configfile:"config.yaml"
 project_id = config["project_id"]
-
+acc_prom = config["acc_prom"]
+met_prom = config["met_prom"]
 
 SAMPLES, = glob_wildcards("samples/raw/{sample}_R1.fastq.gz")
 
-bismark_ext = ['pe.bam', 'PE_report.txt']
 CX_ext1 = ['CHG','CHH','CpG']
 CX_ext2 = ['CTOT','OT','CTOB','OB']
 CX_report = ['_splitting_report.txt','.bedGraph.gz','.M-bias.txt']
 c2c = ['CpG_report.txt.gz','GpC_report.txt.gz']
+filt = ['CpG.tsv.gz','GpC.tsv.gz']
+filtbin = ['CpG.gz','GpC.gz']
+filtbindir = ['bismarkSE/CX/coverage2cytosine_1based/filt/binarised']
+metORacc = ['met','acc']
+regions = ['body', 'promoters']
 
 ## generates log dirs from json file
 with open('cluster.json') as json_file:
@@ -59,23 +64,25 @@ for sample in SAMPLES:
 ### everytime output has variable need to expand if no single file no expansion
 rule all:
     input:
-        expand("samples/trim/{sample}_R1.fastq.gz_trimming_report.txt", sample = SAMPLES),
-	expand("samples/trim/{sample}_R2.fastq.gz_trimming_report.txt", sample = SAMPLES),
-        expand("samples/trim/{sample}_R1_val_1_fastqc.html", sample = SAMPLES),
-        expand("samples/trim/{sample}_R1_val_1_fastqc.zip", sample = SAMPLES),
-	expand("samples/trim/{sample}_R2_val_2_fastqc.html", sample = SAMPLES),
+#        expand("samples/trim/{sample}_R{replicate}.fastq.gz_trimming_report.txt", sample = SAMPLES, replicate=[1, 2]),
+#        expand("samples/trim/{sample}_R{replicate}_val_{replicate}_fastqc.html", sample = SAMPLES, replicate=[1, 2]),
+#        expand("samples/trim/{sample}_R{replicate}_val_{replicate}_fastqc.zip", sample = SAMPLES, replicate=[1, 2]),
         expand("samples/trim/{sample}_R2_val_2_fastqc.zip", sample = SAMPLES),
-	expand("bismarkSE/{sample}_R1_SE_report.txt", sample = SAMPLES),
-	expand("bismarkSE/{sample}_R2_SE_report.txt", sample = SAMPLES),
-	expand("bismarkSE/dedup/{sample}_R1.deduplication_report.txt", sample = SAMPLES),
-	expand("bismarkSE/dedup/{sample}_R2.deduplication_report.txt", sample = SAMPLES),
-	expand("bismarkSE/dedup/{sample}_merged.bam", sample = SAMPLES),
-	expand("bismarkSE/CX/{CX_ext1}_{CX_ext2}_{sample}_merged.txt.gz", sample = SAMPLES, CX_ext1 = CX_ext1, CX_ext2 = CX_ext2),
-	expand("bismarkSE/CX/{sample}_merged{CX_report}", sample = SAMPLES, CX_report = CX_report),
-	expand("bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.{c2c}", sample = SAMPLES, c2c = c2c),
-	expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_GpC.gz", sample = SAMPLES),
-	"tables/bismarkSE_mapping_report.txt",
-	"plots/counts_stats/coverageBar.pdf",
+#        expand("bismarkSE/{sample}_R{replicate}.bam", sample = SAMPLES, replicate = [1, 2]),
+        expand("bismarkSE/{sample}_R{replicate}_SE_report.txt", sample = SAMPLES, replicate = [1, 2]),
+        expand("bismarkSE/dedup/{sample}_R{replicate}.deduplication_report.txt", sample = SAMPLES, replicate = [1, 2]),
+#        expand("bismarkSE/dedup/{sample}_merged.bam", sample = SAMPLES),
+#        expand("bismarkSE/CX/{CX_ext1}_{CX_ext2}_{sample}_merged.txt.gz", sample = SAMPLES, CX_ext1 = CX_ext1, CX_ext2 = CX_ext2),
+#        expand("bismarkSE/CX/{sample}_merged{CX_report}", sample = SAMPLES, CX_report = CX_report),
+        expand("bismarkSE/CX/{sample}_merged.M-bias.txt", sample = SAMPLES),
+#        expand("bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.{c2c}", sample = SAMPLES, c2c = c2c),
+        expand("bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.GpC_report.txt.gz", sample = SAMPLES),
+        expand("bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_{filt}", sample = SAMPLES, filt = filt),	
+#        expand("{filtbindir}/{sample}_{filtbin}", sample = SAMPLES, filtbin = filtbin, filtbindir = filtbindir),
+        expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_{filtbin}", sample = SAMPLES, filtbin = filtbin),
+        "tables/bismarkSE_mapping_report.txt",
+	"data/gene_metadata.tsv",
+        "plots/counts_stats/coverageBar.pdf",
         "plots/counts_stats/GWmethylRate.pdf",
         "plots/counts_stats/GWaccessRate.pdf",
         "tables/sample_read_report.txt",
@@ -88,7 +95,7 @@ rule all:
         "plots/counts_stats/coverageDensityPlot.pdf",
         "plots/counts_stats/qc_accessCoverageBar.pdf",
         "plots/counts_stats/qc_methylCoverageBar.pdf",
-	"plots/met_acc_QC/qc_accessCoverageBar.pdf",
+        "plots/met_acc_QC/qc_accessCoverageBar.pdf",
         "plots/met_acc_QC/qc_methylCoverageBar.pdf",
         "plots/met_acc_QC/qc_methylMeanCoverageBar.pdf",
         "plots/met_acc_QC/qc_accessMeanCoverageBar.pdf",
@@ -96,13 +103,15 @@ rule all:
         "plots/met_acc_QC/qc_coverageBoxPlot.pdf",
         "tables/sample_stats_qcPass.txt",
         "tables/sample_read_report_qcPASS.txt",
-	"data/accessibility_at_promoters.pdf",
-	"data/accessibility_at_promoters.RData",
-	"data/anno/body.bed",
-	"data/anno/promoters.bed",
-	"data/methylation_at_promoters.pdf",
-	"data/methylation_at_promoters.RData"
-
+	"plots/profiles/accessibility_at_promoters.pdf",
+	"plots/profiles/accessibility_at_promoters.RData",	
+#	"data/anno/body.bed",
+#	"data/anno/promoters.bed",
+	expand("data/{regions}{acc_prom}.bed", acc_prom = acc_prom, regions = regions),
+	expand("data/{regions}{met_prom}.bed", met_prom = met_prom, regions = regions),
+        "plots/profiles/methylation_at_promoters.pdf",
+	"plots/profiles/methylation_at_promoters.RData",
+ 
 ## must include all rules
 include: "rules/bismart.smk"
 include: "rules/QC.smk"
