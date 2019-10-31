@@ -58,7 +58,7 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 #opts$context <- "CG"
 #opts$WinSize <- 100
 #opts$promUp <- 1000
-#opts$StepSize <- 20
+#opts$StepSize <- 20#
 #opts$covCutOff <- 0
 #io$out_dir <- "data"
 #io$plot_dir <- "plots/profiles"
@@ -66,7 +66,7 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 
 ##################
 
-if (identical(StepSize,character(0))){
+if (identical(covCutOff,character(0))){
     opts$covCutOff <- 0
 }else{
     opts$covCutOff <- as.numeric(covCutOff)
@@ -186,7 +186,11 @@ prom[strand == "+", dist := tss - start]
 prom[strand == "-", dist := start - tss]
 
 anno <- prom[,c("chr", "start", "end", "gene", "tss", "strand", "dist")]
+
+# make sure neither have chr to avoid format issue
+anno$chr <- sub("^chr", "", anno$chr) 
 anno <- anno[!chr %in% c("MT","Y")]
+
 setkey(anno, chr, start, end)
 
 acc <- map2(cells, files, ~{
