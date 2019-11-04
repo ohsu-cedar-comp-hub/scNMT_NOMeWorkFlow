@@ -12,3 +12,13 @@ met_prom:
   10000
 gtf_file:
   /home/groups/CEDAR/anno/gtf/hg19_ens87.chr.gtf
+accBed:
+  data/anno/promoters1000.bed
+metBed:
+  data/anno/promoters10000.bed
+bedtools:
+  /home/groups/CEDAR/tools/bedtools
+cpg:
+  /home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/anno/hg19/corr/hg19_CpGislands_UCSC.bed
+annoDir:
+  data/anno

@@ -9,8 +9,7 @@ Make profiles plots around promoters. Output will be save in the parsed director
     cat("--outDir      : output directory                                    [required]\n")
     cat("--WinSize     : size of window to average                           [default = 100]\n")
     cat("--StepSize    : slide start of window by step size                  [default = 20]\n")    
-    cat("--promUp      : number of nucleotides upstream of the tss           [default = 2000 ]
-                         will also be used for downstream                              \n")
+    cat("--promBed     : path to windows around tss (data/promoters1000.bed) [required]\n")
     cat("--annoFile    : tsv <ens_id gene chr start end strand >             [required]\n")
     cat("--qcFile      : tsv required feilds:                                [required]
                          <id, context, passmet_QC, pass_accQC>
@@ -32,7 +31,7 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 } else {
     io$raw_acc   <- sub( '--covPath=', '', args[grep('--covPath=', args)] )
     WinSize      <- sub( '--WinSize=', '', args[grep('--WinSize=', args)] )
-    promUp       <- sub( '--promUp=', '', args[grep('--promUp=', args)] )
+    io$promBed   <- sub( '--promBed=', '', args[grep('--promBed=', args)] )
     StepSize     <- sub( '--StepSize=', '', args[grep('--StepSize=', args)])
     io$anno      <- sub( '--annoFile=', '', args[grep('--annoFile=', args)])
     io$qc_file   <- sub( '--qcFile=', '', args[grep('--qcFile=', args)])
@@ -48,21 +47,21 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 ### Test Input Only###
 ######################
 #setwd("../")
-
 #io   <- list()
 #opts <- list()
 #io$raw_acc <- "bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
 #io$out_dir <- "data"
 #io$anno <- "data/gene_metadata.tsv"
 #io$qc_file <- "tables/sample_stats_qcPass.txt"
+#io$promBed <- "data/promoters1000.bed"
+#io$bodyBed <- "data/body1000.bed"
 #opts$context <- "CG"
-#opts$WinSize <- 100
-#opts$promUp <- 1000
-#opts$StepSize <- 20#
+#opts$win <- 100
+#opts$step <- 20#
 #opts$covCutOff <- 0
-#io$out_dir <- "data"
+#io$out_dir <- "plots/profiles"
 #io$plot_dir <- "plots/profiles"
-#io$data_dir <- "data/anno"
+#io$data_dir <- "data"
 
 ##################
 
@@ -94,13 +93,13 @@ if (identical(StepSize,character(0))){
    opts$step <- as.numeric(StepSize)
 }
 
-if (identical(promUp,character(0))){
-    opts$promUp   <- 2000
-    opts$promDown <- 2000
-}else{
-    opts$promUp   <- as.numeric(promUp)
-    opts$promDown <- as.numeric(promUp)
-}
+#if (identical(promUp,character(0))){
+#    opts$promUp   <- 2000
+#    opts$promDown <- 2000
+#}else{
+#    opts$promUp   <- as.numeric(promUp)
+#    opts$promDown <- as.numeric(promUp)
+#}
 
 if(opts$context == "GC"){
     opts$outName <- "accessibility"
@@ -135,33 +134,18 @@ if( opts$context == "GC" ){
 }    
 head(files)
 
-prom <- fread(io$anno) %>%
-  .[strand == "+", tss := start] %>%
-  .[strand == "-", tss := end] %>% .[!chr %in% c("MT", "Y")]
+#prom <- fread(io$anno) %>%
+#  .[strand == "+", tss := start] %>%
+#  .[strand == "-", tss := end] %>% .[!chr %in% c("MT", "Y")]
+#print(prom)
+
+#gr <- as(prom, "GRanges") %>% .[width(.) > opts$promUp]
+                                        #print(gr)
+prom <- fread(io$promBed) %>% setnames(c("chr","start", "end", "strand", "ens_id", "anno")) %>%
+    .[strand == "+", tss := start] %>%
+    .[strand == "-", tss := end] %>% .[!chr %in% c("chrM", "chrY", "M", "Y")]
+prom <- as(prom, "GRanges")
 print(prom)
-
-gr <- as(prom, "GRanges") %>% .[width(.) > opts$promUp]
-print(gr)
-
-# save gene body info for correlations
-body      <- resize(gr, fix='end', width=width(gr)-opts$promUp )
-body$anno <- "body"
-body      <- as.data.table(body)
-df        <- body[,.(seqnames, start, end, strand, ens_id, anno)]
-print(head(df))
-
-fwrite(df
-     , paste0(io$data_dir, "/", "body", opts$promUp, ".bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
-
-# save promoter info
-prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=opts$promUp, downstream=opts$promUp))
-
-df   <- prom[,.(seqnames, start, end, strand, ens_id, "promoter")]
-
-df <- df[!seqnames %in% c("MT", "Y"), ]
-
-fwrite(df
-     , paste0(io$data_dir, "/", "promoters", opts$promUp, ".bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
 
 ##############
 # make windows
@@ -172,11 +156,16 @@ names(boo) <- boo$ens_id
 #hmm <- unlist(slidingWindows(boo, 50, step=50))
 hmm        <- unlist(slidingWindows(boo, opts$win, step=opts$step))
 hmm$ens_id <- sub("\\..*", "", names(hmm))
+print(hmm)
 
 # get anno for windows
-iv       <- match(hmm$ens_id, prom$ens_id)
-hmm$gene <- prom[iv,gene]
-hmm$tss <- prom[iv,tss]
+anno <- fread(io$anno)
+iv   <- match(hmm$ens_id, anno$ens_id)
+hmm$gene <- anno[iv,gene]
+
+iv   <- match(hmm$ens_id, prom$ens_id)
+hmm$tss <- as.data.frame(prom)[iv,"tss"]
+print(hmm)
 
 # 
 prom        <- as.data.table(hmm)
@@ -193,6 +182,7 @@ anno <- anno[!chr %in% c("MT","Y")]
 
 setkey(anno, chr, start, end)
 
+print("calculate rates for window around promoters")
 acc <- map2(cells, files, ~{
   cell = .x
   d=fread(.y) %>% 
@@ -208,6 +198,7 @@ acc <- map2(cells, files, ~{
 
 acc <- acc[order(acc$cell, acc$dist),]
 print(head(acc))
+print("save rates at promoters")
 save(acc,file=paste(io$out_dir, paste0(opts$outName, "_at_promoters.RData"), sep="/"))
 
 
@@ -229,6 +220,7 @@ Rate <- as.data.frame(do.call(rbind,lapply(seq(1,nrow(acc)-1,by=2), function(i){
 })))
 
 Avg$rate <- Rate[,1]
+print(head(Avg))
 
 ###################
 
@@ -240,16 +232,17 @@ test_df$dist <- rownames(test_df)
 test_df <- as.data.table(test_df)
 test_df$dist <- as.integer(test_df$dist)
 
+print("plot average at promoters")
 p <- ggplot(test_df, aes(dist)) +
     geom_ribbon(aes(y = cell_Avg, ymin = cell_Avg-cell_sd, ymax = cell_Avg+cell_sd), alpha = 0.25) +
     geom_line(aes(y = cell_Avg), color = "red") +
     theme_bw() +
     guides(colour = FALSE) +
     labs(y="Rate",x="Distance from Promoter")
-p
 
 save_plot(paste(io$out_dir, paste0(opts$outName, "_average_promoters.pdf"),sep="/"), p)
 
+print("plot all cells at promoters")
 p <- ggplot(Avg, aes(dist)) +
     #geom_line(aes(y = sd_down, colour = cell), linetype = "dashed") +
     geom_line(aes(y = rate, colour = cell)) +
@@ -257,11 +250,10 @@ p <- ggplot(Avg, aes(dist)) +
     theme_bw() +
     guides(colour = FALSE) +
     labs(y="Rate",x="Distance from Promoter")
-p
 
 
 save_plot(paste(io$out_dir, paste0(opts$outName, "_at_promoters.pdf"),sep="/"), p)
-
+print("done")
 ### repeat with only cells passing stricter threshold ###
 
 #if(!is.na(opts$covCutOff)) {

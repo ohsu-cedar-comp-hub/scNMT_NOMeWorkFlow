@@ -104,13 +104,17 @@ rule all:
         "tables/sample_stats_qcPass.txt",
         "tables/sample_read_report_qcPASS.txt",
 	"plots/profiles/accessibility_at_promoters.pdf",
+	"plots/profiles/accessibility_average_promoters.pdf",
 	"plots/profiles/accessibility_at_promoters.RData",	
 #	"data/anno/body.bed",
 #	"data/anno/promoters.bed",
-	expand("data/{regions}{acc_prom}.bed", acc_prom = acc_prom, regions = regions),
-	expand("data/{regions}{met_prom}.bed", met_prom = met_prom, regions = regions),
+	expand("data/anno/{regions}{acc_prom}.bed", acc_prom = acc_prom, regions = regions),
+	expand("data/anno/{regions}{met_prom}.bed", met_prom = met_prom, regions = regions),
         "plots/profiles/methylation_at_promoters.pdf",
+	"plots/profiles/methylation_average_promoters.pdf",
 	"plots/profiles/methylation_at_promoters.RData",
+	"data/anno/CGI_promoter.bed",
+	"data/anno/nonCGI_promoter.bed"
  
 ## must include all rules
 include: "rules/bismart.smk"
