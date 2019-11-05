@@ -47,7 +47,7 @@ head(metadata)
 #metadata$V8 <- NULL
 names(metadata) <- sub("SampleID", "sample", names(metadata))
 
-opts$cells <- metadata[,sample]
+opts$cells <- metadata[,Cell]
 
 stats <- rbindlist( 
                    list( 

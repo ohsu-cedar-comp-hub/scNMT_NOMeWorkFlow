@@ -12,7 +12,8 @@
     },
      "trimming" :
     {
-        "J" : "trim_single_cases",
+	"t" : "3:00:00",
+	"J" : "trim_single_cases",
         "o" : "logs/trimming/mapReads_single_cases%j.out",
         "e" : "logs/trimming/mapReads_single_cases%j.err",
         "c" : 1,
@@ -20,22 +21,25 @@
     },
      "mapping_R1" :
     {
+	"t" : "20:00:00",
         "J" : "mapReads_single_controls_R1",
         "o" : "logs/mapping_R1/mapReads_single_controls_R1%j.out",
         "e" : "logs/mapping_R1/mapReads_single_controls_R1%j.err",
-        "c" : 4,
-        "mem" : 64000
+        "c" : 8,
+        "mem" : 128000
     },
     "mapping_R2" :
     {
+	"t" : "20:00:00",
         "J" : "mapReads_single_controls_R2",
         "o" : "logs/mapping_R2/mapReads_single_controls_R2%j.out",
         "e" : "logs/mapping_R2/mapReads_single_controls_R2%j.err",
-        "c" : 4,
-        "mem" : 64000
+        "c" : 8,
+        "mem" : 128000
     },
     "deduplcate_bam_R1" :
     {
+	"t" : "3:00:00",
         "J" : "deduplicate_R1",
         "o" : "logs/deduplcate_bam_R1/deduplicate_R1%j.out",
         "e" : "logs/deduplcate_bam_R1/deduplicate_R1%j.err",
@@ -44,6 +48,7 @@
     },
     "deduplcate_bam_R2" :
     {
+	"t" : "3:00:00",
         "J" : "deduplicate_R2",
         "o" : "logs/deduplcate_bam_R2/deduplicate_R2%j.out",
         "e" : "logs/deduplcate_bam_R2/deduplicate_R2%j.err",
@@ -52,22 +57,25 @@
     },
     "methylation_extractor" :
     {
-        "J" : "methylation_extract",
-        "o" : "logs/methylation_extractor/methylation_extract%j.out",
-        "e" : "logs/methylation_extractor/methylation_extract%j.err",
-        "c" : 4,
-        "mem" : 64000
+	"t" : "16:00:00",
+        "J" : "methylation_extractor",
+        "o" : "logs/methylation_extractor/methylation_extractor%j.out",
+        "e" : "logs/methylation_extractor/methylation_extractor%j.err",
+        "c" : 12,
+        "mem" : 128000
     },
     "coverage2cytosine" :
     {
-        "J" : "c2c",
-        "o" : "logs/coverage2cytosine/c2c%j.out",
-        "e" : "logs/coverage2cytosine/c2c%j.err",
+	"t" : "12:00:00",
+        "J" : "coverage2cytosine",
+        "o" : "logs/coverage2cytosine/coverage2cytosine%j.out",
+        "e" : "logs/coverage2cytosine/coverage2cytosine%j.err",
         "c" : 4,
         "mem" : 64000
     },
     "c2c_cov_filter_met" :
     {
+	"t" : "3:00:00",
 	"J" : "c2c_filter_met",
 	"o" : "logs/c2c_cov_filter_met/c2c_filter_met%j.out",
 	"e" : "logs/c2c_cov_filter_met/c2c_filter_met%j.err",
@@ -76,6 +84,7 @@
     },
     "c2c_cov_filter_acc" :
     {
+	"t" : "3:00:00",
 	"J" : "c2c_filteacc",
 	"o" : "logs/c2c_cov_filter_acc/c2c_filter_acc%j.out",
 	"e" : "logs/c2c_cov_filter_acc/c2c_filter_acc%j.err",
@@ -84,6 +93,7 @@
     },
     "binarize_met" :
     {
+	"t" : "3:00:00",
 	"J" : "binarize_met",
 	"o" : "logs/binarize_met/binarize_met%j.out",
 	"e" : "logs/binarize_met/binarize_met%j.err",
@@ -92,6 +102,7 @@
     },
     "binarize_acc" :
     {
+	"t" : "3:00:00",
 	"J" : "binarize_acc",
 	"o" : "logs/binarize_acc/binarize_acc%j.out",
 	"e" : "logs/binarize_acc/binarize_acc%j.err",
@@ -100,6 +111,7 @@
     },
     "create_reports" :
     {
+	"t" : "3:00:00",
 	"J" : "create_reports",
 	"o" : "logs/create_reports/create_reports%j.out",
 	"e" : "logs/create_reports/create_reports%j.err",
@@ -108,6 +120,7 @@
     },
     "counts_stats" :
     {
+	"t" : "3:00:00",
 	"J" : "counts_stats",
 	"o" : "logs/counts_stats/counts_stats%j.out",
 	"e" : "logs/counts_stats/counts_stats%j.err",
@@ -116,6 +129,7 @@
     },
     "met_acc_QC" :
     {
+	"t" : "3:00:00",
 	"J" : "met_acc_QC",
 	"o" : "logs/met_acc_QC/met_acc_QC%j.out",
 	"e" : "logs/met_acc_QC/met_acc_QC%j.err",
@@ -124,6 +138,7 @@
     },
     "get_genes" :
     {
+	"t" : "3:00:00",
 	"J" : "get_genes",
 	"o" : "logs/get_genes/get_genes_%j.out",
 	"e" : "logs/get_genes/get_genes_%j.err",
@@ -132,6 +147,7 @@
     },
     "accessibility_profile" :
     {
+	"t" : "3:00:00",
 	"J" : "accessibility_profile",
 	"o" : "logs/accessibility_profile/accessibility_profile_%j.out",
 	"e" : "logs/accessibility_profile/accessibility_profile_%j.err",
@@ -140,10 +156,47 @@
     },
     "methylation_profile" :
     {
+	"t" : "3:00:00",
 	"J" : "methylation_profile",
 	"o" : "logs/methylation_profile/methylation_profile_%j.out",
 	"e" : "logs/methylation_profile/methylation_profile_%j.err",
 	"c" : 1,
 	"mem" : 64000
-    }	
+    },
+    "annotate_acc" :
+    {
+	"t" : "3:00:00",
+	"J" : "annotate_acc",
+	"o" : "logs/annotate_acc/annotate_acc_QC%j.out",
+	"e" : "logs/annotate_acc/annotate_acc_QC%j.err",
+	"c" : 1,
+	"mem" : 16000
+    },
+    "annotate_met" :
+    {
+	"t" : "3:00:00",
+	"J" : "annotate_met",
+	"o" : "logs/annotate_met/annotate_met_%j.out",
+	"e" : "logs/annotate_met/annotate_met_%j.err",
+	"c" : 1,
+	"mem" : 16000
+    },
+    "plot_anno" :
+    {
+        "t" : "3:00:00",
+        "J" : "plot_anno",
+        "o" : "logs/plot_anno/plot_anno_%j.out",
+        "e" : "logs/plot_anno/plot_anno_%j.err",
+        "c" : 1,
+        "mem" : 16000
+    },
+    "accmet_corr" :
+    {
+        "t" : "3:00:00",
+        "J" : "accmet_corr",
+        "o" : "logs/accmet_corr/accmet_corr_%j.out",
+        "e" : "logs/accmet_corr/accmet_corr_%j.err",
+        "c" : 1,
+        "mem" : 16000
+    }
 }

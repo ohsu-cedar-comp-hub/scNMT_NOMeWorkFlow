@@ -86,7 +86,7 @@ print(head(df))
 
 print("save body without the promoter window")
 fwrite(df
-     , paste0("data/anno", "body", opts$acc_prom, ".bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
+     , paste0("data/anno/", "body", opts$acc_prom, ".bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
 
 # save promoter info
 prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=opts$acc_prom, downstream=opts$acc_prom))

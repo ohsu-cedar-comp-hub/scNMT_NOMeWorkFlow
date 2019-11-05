@@ -38,10 +38,10 @@ library(furrr)
 
 
 ### TEST INPUT ###
-#io$anno_dir <- "../../../test_git/scNMT_NOMeWorkFlow/data/anno"
-#io$raw_files <- "../../../test_git/scNMT_NOMeWorkFlow/bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
-#io$meta_data <- "../../../test_git/scNMT_NOMeWorkFlow/tables/sample_stats_qcPass.txt"
-#io$out_dir <- "../../data/met"
+#io$anno_dir <- "data/anno"
+#io$raw_files <- "bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
+#io$meta_data <- "tables/sample_stats_qcPass.txt"
+#io$out_dir <- "data/met"
 
 dir.create(io$out_dir, recursive = TRUE)
 
@@ -120,7 +120,7 @@ acc_dt <- future_map2(files, cells, ~{
           rate)] %>%
     setkey(chr, start, end) %>%
     foverlaps(anno, nomatch = 0L) %>% 
-    .[, .(rate = round(100 * mean(rate)), Nmet = sum(rate == 1), .N, sample = .y), .(id, anno)]
+    .[, .(rate = round(100 * mean(rate)), Nmet = sum(rate == 1), .N, sample = .y, var=var(rate)), .(id, anno)]
 }) %>%
   purrr::compact() %>%
   rbindlist()
