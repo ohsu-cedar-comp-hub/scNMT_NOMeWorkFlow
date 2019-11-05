@@ -9,6 +9,7 @@ Plots rates across the different annotations\n")
     cat("--acc         : path to accessibility files  [required]\n")
     cat("--plotdir     : location to output plots     [required]\n")
     cat("--anno        : path to annotation files     [required]\n")
+    cat("--genes       : path to gene annotation      [required]\n")
     cat("\n")
     q()
 }
@@ -23,10 +24,11 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
     io$acc_dir    <- sub( '--acc=', '', args[grep('--acc', args)] )
     io$plot_dir   <- sub( '--plotdir=', '', args[grep('--plotdir', args)] )
     io$anno_dir   <- sub( '--anno=', '', args[grep('--anno', args)] )
+    io$gene_file  <- sub( '--genes=', '', args[grep('--gene', args)] )
 }
 
 
-library(SingleCellExperiment)
+#library(SingleCellExperiment)
 library(scater)
 library(data.table)
 library(purrr)
@@ -42,8 +44,7 @@ library(ggrepel)
 #io$met_dir        <- "data/met/"
 #io$anno_dir       <- "data/anno/"
 #io$plot_dir       <- "plots/corr"
-
-io$gene_file      <- "data/gene_hg19.cellRanger_metadata.tsv"
+#io$gene_file      <- "data/gene_metadata.tsv"
 
 opts <- list()
 opts$anno_regex <- "CGI_promoter|MCF7_ER_peaks|H3K27ac_peaks|body|Repressed|Enhancer|CTCF"

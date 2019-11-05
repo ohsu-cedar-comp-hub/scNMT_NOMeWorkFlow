@@ -31,6 +31,7 @@ library(dplyr)
 library(GenomeInfoDb)
 
 ############
+#setwd("../")
 #io$outfile <- "/home/groups/CEDAR/anno/gtf/hg19_ens87.chr.gtf"
 #opts$acc_prom <- 1000
 #opts$met_prom <- 10000
@@ -122,7 +123,7 @@ fwrite(df
      , paste0("data/anno/", "body", opts$met_prom, ".bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
 
 # save promoter info
-prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=opts$acc_prom, downstream=opts$met_prom))
+prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=opts$met_prom, downstream=opts$met_prom))
 
 df   <- prom[,.(seqnames, start, end, strand, ens_id, "promoter")]
 

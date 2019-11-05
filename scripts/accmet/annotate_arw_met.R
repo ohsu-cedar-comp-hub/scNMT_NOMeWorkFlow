@@ -38,6 +38,7 @@ library(furrr)
 
 
 ### TEST INPUT ###
+#setwd("../")
 #io$anno_dir <- "data/anno"
 #io$raw_files <- "bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
 #io$meta_data <- "tables/sample_stats_qcPass.txt"
@@ -45,7 +46,7 @@ library(furrr)
 
 dir.create(io$out_dir, recursive = TRUE)
 
-opts$anno_regex <- "CGI_promoter|MCF7_ER_peaks|H3K27ac_peaks|body|Repressed|Enhancer|CTCF" # use to select specific annotations
+opts$anno_regex <- "GI_promoters1000.bed|MCF7_ER_peaks|H3K27ac_peaks|body1000.bed|Repressed|Enhancer|CTCF" # use to select specific annotations
 opts$parallel <- FALSE
 opts$cores <- 2
 opts$gzip <- TRUE
@@ -79,7 +80,8 @@ files <- unique(meta[, paste0(io$raw_files, "/", sample, "_CpG", ".gz")])
 
 cells <- cells[file.exists(files)]
 files <- files[file.exists(files)]
-
+print(head(cells))
+print(head(files))
 
 ### load annotations ###
 
@@ -89,8 +91,10 @@ anno <- dir(io$anno_dir, pattern = ".bed", full = TRUE) %>%
 #           setnames(c("chr", "start", "end", "strand", "id", "anno")) %>% 
 #           .[, anno := paste0(anno, "_", .y)]) %>%
     map(fread, colClasses = list("character" = 1)) %>%
-  rbindlist() %>% setnames(c("chr", "start", "end", "strand", "id", "anno")) %>%
-  setkey(chr, start, end)
+    rbindlist() %>% setnames(c("chr", "start", "end", "strand", "id", "anno")) %>%
+    .[,chr := gsub("chr", "", chr)] %>% .[!chr == "M" & !chr == "Y"] %>%
+setkey(chr, start, end)
+
 
 if (opts$extend_anno_len) {
   anno <- anno[, mid := start + (end-start)/2] 

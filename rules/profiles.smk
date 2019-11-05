@@ -13,7 +13,7 @@ rule get_genes:
      conda:
         "../envs/GetEnsemblGenes.yaml"
      shell:
-        "Rscript scripts/getEnsemblGenes.R --gtf={params.gtf} --met_prom={params.met} --acc_prom={params.acc}"
+        "Rscript scripts/getEnsemblGenes.R  --gtf={params.gtf} --met_prom={params.met} --acc_prom={params.acc}"
 
 rule accessibility_profile:
      input:
@@ -45,23 +45,24 @@ rule methylation_profile:
      shell:
         "Rscript scripts/accessibility_profiles.R --covPath=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --dataDir=data --plotDir=plot/profiles --annoFile={input[1]} --qcFile={input[0]} --context=CG --promBed={params.metBed}"
 
-rule define_cpgProm:
-     input: rules.get_genes.output.c #"data/anno/promoters1000.bed"
-     output:
-        "data/anno/CGI_promoter.bed",
-        "data/anno/nonCGI_promoter.bed"
-     params:
-        bedtools = config['bedtools'],
-        cpg = config['cpg']
-     shell:
-        """
-        {params.bedtools} -u -a {input} -b {params.cpg} > data/anno/CGI_promoter.bed
-        {params.bedtools} -v -a {input} -b {params.cpg} > data/anno/nonCGI_promoter.bed
-        """
+#rule define_cpgProm:
+#     input: rules.get_genes.output.c #"data/anno/promoters1000.bed"
+#     output:
+#        "data/anno/CGI_promoter.bed",
+#        "data/anno/nonCGI_promoter.bed"
+#     params:
+#        bedtools = config['bedtools'],
+#        cpg = config['cpg']
+#     shell:
+#        """
+#        {params.bedtools} -u -a {input} -b {params.cpg} > data/anno/CGI_promoter.bed
+#        {params.bedtools} -v -a {input} -b {params.cpg} > data/anno/nonCGI_promoter.bed
+#        """
 
 rule annotate_acc:
      input:
-        "tables/sample_stats_qcPass.txt"
+        "tables/sample_stats_qcPass.txt",
+        "data/gene_metadata.tsv"
      output:
         "data/acc/body.tsv.gz",
         "data/acc/CGI_promoter.tsv.gz",
@@ -74,11 +75,12 @@ rule annotate_acc:
      conda:
         "../envs/NMT_annotate.yaml"        	
      shell:
-        "Rscript scripts/accmet/annotate_arw_acc.R --anno=data/anno --raw=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --meta={input} --outdir=data/acc"
+        "Rscript scripts/accmet/annotate_arw_acc.R --anno=data/anno --raw=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --meta={input[0]} --outdir=data/acc --genes={input[1]}"
 
 rule annotate_met:
      input:
-        "tables/sample_stats_qcPass.txt"
+        "tables/sample_stats_qcPass.txt",
+	"data/gene_metadata.tsv"
      output:
         "data/met/body.tsv.gz",
         "data/met/CGI_promoter.tsv.gz",
@@ -91,7 +93,7 @@ rule annotate_met:
      conda:
         "../envs/NMT_annotate.yaml"        
      shell:
-        "Rscript scripts/accmet/annotate_arw_met.R --anno=data/anno --raw=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --meta={input} --outdir=data/met"
+        "Rscript scripts/accmet/annotate_arw_met.R --anno=data/anno --raw=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --meta={input[0]} --outdir=data/met --genes={input[1]}"
 
 rule plot_anno:
      input:

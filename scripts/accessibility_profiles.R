@@ -53,7 +53,7 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 #io$out_dir <- "data"
 #io$anno <- "data/gene_metadata.tsv"
 #io$qc_file <- "tables/sample_stats_qcPass.txt"
-#io$promBed <- "data/promoters1000.bed"
+#io$promBed <- "data/anno/promoters10000.bed"
 #io$bodyBed <- "data/body1000.bed"
 #opts$context <- "CG"
 #opts$win <- 100
@@ -241,6 +241,7 @@ p <- ggplot(test_df, aes(dist)) +
     labs(y="Rate",x="Distance from Promoter")
 
 save_plot(paste(io$out_dir, paste0(opts$outName, "_average_promoters.pdf"),sep="/"), p)
+dev.off()
 
 print("plot all cells at promoters")
 p <- ggplot(Avg, aes(dist)) +
@@ -253,6 +254,7 @@ p <- ggplot(Avg, aes(dist)) +
 
 
 save_plot(paste(io$out_dir, paste0(opts$outName, "_at_promoters.pdf"),sep="/"), p)
+dev.off()
 print("done")
 ### repeat with only cells passing stricter threshold ###
 

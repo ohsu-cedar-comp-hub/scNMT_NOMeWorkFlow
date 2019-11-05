@@ -8,14 +8,14 @@ dependencies:
   - _r-mutex=1.0.1=anacondar_1
   - binutils_impl_linux-64=2.31.1=h7fc9f1b_2
   - binutils_linux-64=2.31.1=h6176602_12
-  - bioconductor-biocgenerics=0.30.0=r36_1
-  - bioconductor-genomeinfodb=1.20.0=r36_1
-  - bioconductor-genomeinfodbdata=1.2.1=r36_1
-  - bioconductor-genomicranges=1.36.0=r36h516909a_1
-  - bioconductor-iranges=2.18.2=r36h516909a_0
-  - bioconductor-s4vectors=0.22.0=r36h516909a_1
-  - bioconductor-xvector=0.24.0=r36h516909a_1
-  - bioconductor-zlibbioc=1.30.0=r36h516909a_1
+  - bioconductor-biocgenerics=0.32.0=r36_0
+  - bioconductor-genomeinfodb=1.22.0=r36_0
+  - bioconductor-genomeinfodbdata=1.2.2=r36_0
+  - bioconductor-genomicranges=1.38.0=r36h516909a_0
+  - bioconductor-iranges=2.20.0=r36h516909a_0
+  - bioconductor-s4vectors=0.24.0=r36h516909a_0
+  - bioconductor-xvector=0.26.0=r36h516909a_0
+  - bioconductor-zlibbioc=1.32.0=r36h516909a_0
   - bwidget=1.9.13=0
   - bzip2=1.0.8=h516909a_1
   - ca-certificates=2019.9.11=hecc5488_0
@@ -51,10 +51,10 @@ dependencies:
   - libpng=1.6.37=hed695b0_0
   - libssh2=1.8.2=h22169c7_2
   - libstdcxx-ng=9.1.0=hdf63c60_0
-  - libtiff=4.0.10=hfc65ed5_1004
+  - libtiff=4.1.0=hfc65ed5_0
   - libuuid=2.32.1=h14c3975_1000
   - libxcb=1.13=h14c3975_1002
-  - libxml2=2.9.9=hee79883_5
+  - libxml2=2.9.10=hee79883_0
   - lz4-c=1.8.3=he1b5a44_1001
   - make=4.2.1=h14c3975_2004
   - ncurses=6.1=hf484d3e_1002
@@ -94,7 +94,7 @@ dependencies:
   - r-plyr=1.8.4=r36h0357c0b_1003
   - r-purrr=0.3.3=r36hcdcec82_0
   - r-r.methodss3=1.7.1=r36h6115d3f_1002
-  - r-r.oo=1.22.0=r36h6115d3f_1001
+  - r-r.oo=1.23.0=r36h6115d3f_0
   - r-r.utils=2.9.0=r36h6115d3f_1
   - r-r6=2.4.0=r36h6115d3f_2
   - r-rcolorbrewer=1.1_2=r36h6115d3f_1002
