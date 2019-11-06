@@ -43,7 +43,7 @@ rule methylation_profile:
      conda:
         "../envs/NMT_Profiles.yaml"	 
      shell:
-        "Rscript scripts/accessibility_profiles.R --covPath=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --dataDir=data --plotDir=plot/profiles --annoFile={input[1]} --qcFile={input[0]} --context=CG --promBed={params.metBed}"
+        "Rscript scripts/accessibility_profiles.R --covPath=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --dataDir=data --plotDir=plots/profiles --annoFile={input[1]} --qcFile={input[0]} --context=CG --promBed={params.metBed}"
 
 #rule define_cpgProm:
 #     input: rules.get_genes.output.c #"data/anno/promoters1000.bed"
@@ -115,14 +115,16 @@ rule plot_anno:
         "data/met/nonCGI_promoter.tsv.gz",
         "data/met/Repressed.tsv.gz"
      output:
-        "plots/accmet_rates_anno.boxplot.pdf",
-        "plots/accmet_variance_anno.boxplot.pdf"
+        "plots/anno_rateVarboxplots.pdf"
+     conda:
+        "../envs/NMT_plotRatesAnno.yaml"
      shell:
         "Rscript scripts/plotRatesByAnno.R --meta={input[0]} --met=data/met --acc=data/acc --plotdir=plots --anno=data/anno"
 
 rule accmet_corr:
      input:
         "tables/sample_stats_qcPass.txt",
+	"data/gene_metadata.tsv",
 	"data/acc/body.tsv.gz",
         "data/acc/CGI_promoter.tsv.gz",
         "data/acc/CTCF.tsv.gz",
@@ -141,6 +143,11 @@ rule accmet_corr:
         "data/met/Repressed.tsv.gz"
      output:
         "plots/corr/acc_met_correlations_loci.pdf",
-        "plots/corr/acc_met_correlations_samplesAnno.pdf"
+        "plots/corr/acc_met_correlations_loci.tsv"
+     params:
+        acc = config["min_cells_acc"],
+        met = config["min_cells_met"]
+     conda:
+        "../envs/NMT_plotRatesAnno.yaml"	
      shell:
-        "Rscript scripts/accmet/correlations_accmet.R --meta={input[0]} --met=data/met --acc=data/acc --plotdir=plots/corr --anno=data/anno"
+        "Rscript scripts/accmet/correlations_accmet.R --meta={input[0]} --genes={input[1]} --met=data/met --acc=data/acc --plotdir=plots/corr --anno=data/anno --min_cells_met={params.met} --min_cells_acc={params.acc}"

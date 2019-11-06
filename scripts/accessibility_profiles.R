@@ -71,12 +71,12 @@ if (identical(covCutOff,character(0))){
     opts$covCutOff <- as.numeric(covCutOff)
 }
 
-if(!(file.exists( io$out_dir ))) {
+if(!file.exists( io$out_dir )) {
     print(paste("mkdir", io$out_dir))
     dir.create(io$out_dir,FALSE,TRUE)  
 }
 
-if(!(file.exists( io$data_dir ))) {
+if(!file.exists( io$data_dir )) {
     print(paste("mkdir", io$data_dir))
     dir.create(io$data_dir,FALSE,TRUE)  
 }
@@ -207,7 +207,7 @@ is.even <- function(x) x %% 2 == 0
 
 ### Finding Mean ###
 
-Avg           <- acc[seq(1,nrow(acc), by=1) %>% is.odd(), ] %>% .[,rate:=0]
+Avg           <- acc[seq(1,nrow(acc), by=1) %>% is.even(), ] %>% .[,rate:=0]
 #Rate <- vector()
 #for( i in seq(1,nrow(acc)-1,by=2)){
 #  tmp         <- acc[c(i,i+1)] 

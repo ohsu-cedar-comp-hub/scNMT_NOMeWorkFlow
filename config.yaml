@@ -22,3 +22,15 @@ cpg:
   /home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/anno/hg19/corr/hg19_CpGislands_UCSC.bed
 annoDir:
   data/anno
+min_cells_acc:
+  5
+min_cells_met:
+  5
+accCov:
+  50000
+metCov:
+  50000
+accMeanTop:
+  45
+accMeanBot:
+  20

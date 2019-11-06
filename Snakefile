@@ -119,10 +119,9 @@ rule all:
         expand("data/{metORacc}/MCF7_H3K27ac_peaks.tsv.gz", metORacc = metORacc),
         expand("data/{metORacc}/nonCGI_promoter.tsv.gz", metORacc = metORacc),
         expand("data/{metORacc}/Repressed.tsv.gz", metORacc = metORacc),
-	"plots/accmet_rates_anno.boxplot.pdf",
-	"plots/accmet_variance_anno.boxplot.pdf",
+	"plots/anno_rateVarboxplots.pdf",
 	"plots/corr/acc_met_correlations_loci.pdf",
-        "plots/corr/acc_met_correlations_samplesAnno.pdf",
+        "plots/corr/acc_met_correlations_loci.tsv",
 
 ## must include all rules
 include: "rules/bismart.smk"
