@@ -9,24 +9,36 @@ Plots rates across the different annotations\n")
     cat("--acc         : path to accessibility files  [required]\n")
     cat("--plotdir     : location to output plots     [required]\n")
     cat("--anno        : path to annotation files     [required]\n")
+    cat("--genes       : path to gene annotation      [required]\n")
+    cat("--min_cells_met : min number cells covered (20 or 5)      [required]
+                        script dies if you do not meet this min!\n")
+    cat("--min_cells_acc : min number cells covered (20 or 5)      [required]\n")
+    cat("add option to turn on correlation of cells\n")
     cat("\n")
     q()
 }
 
 io <- list()
+opts <- list()
+
+print(args)
+
 ## Save values of each argument
 if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
     help()
 } else {
-    io$nome_meta_data  <- sub( '--meta=', '', args[grep('--meta', args)] )
-    io$met_dir    <- sub( '--met=', '', args[grep('--met', args)] )
-    io$acc_dir    <- sub( '--acc=', '', args[grep('--acc', args)] )
-    io$plot_dir   <- sub( '--plotdir=', '', args[grep('--plotdir', args)] )
-    io$anno_dir   <- sub( '--anno=', '', args[grep('--anno', args)] )
+    io$nome_meta_data  <- sub( '--meta=', '', args[grep('--meta=', args)] )
+    io$met_dir    <- sub( '--met=', '', args[grep('--met=', args)] )
+    io$acc_dir    <- sub( '--acc=', '', args[grep('--acc=', args)] )
+    io$plot_dir   <- sub( '--plotdir=', '', args[grep('--plotdir=', args)] )
+    io$anno_dir   <- sub( '--anno=', '', args[grep('--anno=', args)] )
+    io$gene_file  <- sub( '--genes=', '', args[grep('--genes=', args)] )
+    opts$min_cells_met <- sub( '--min_cells_met=', '', args[grep('--min_cells_met=', args)] )
+    opts$min_cells_acc <- sub( '--min_cells_acc=', '', args[grep('--min_cells_acc', args)] )
 }
 
 
-library(SingleCellExperiment)
+#library(SingleCellExperiment)
 library(scater)
 library(data.table)
 library(purrr)
@@ -36,23 +48,25 @@ library(cowplot)
 library(ggrepel)
 
 ##### TEST INPUT #####
+#setwd("../")
 #io <- list()
+#opts <- list()
 #io$nome_meta_data <- "tables/sample_stats_qcPass.txt"
 #io$acc_dir        <- "data/acc/"
 #io$met_dir        <- "data/met/"
 #io$anno_dir       <- "data/anno/"
 #io$plot_dir       <- "plots/corr"
+#io$gene_file      <- "data/gene_metadata.tsv"
+#opts$min_cells_met <- 5 # loci must have observations in this many cells
+#opts$min_cells_acc <- 5 # loci must have observations in this many cells
 
-io$gene_file      <- "data/gene_hg19.cellRanger_metadata.tsv"
-
-opts <- list()
-opts$anno_regex <- "CGI_promoter|MCF7_ER_peaks|H3K27ac_peaks|body|Repressed|Enhancer|CTCF"
+opts$anno_regex <- "CGI_promoters1000.bed|MCF7_ER_peaks|H3K27ac_peaks|body10000.bed|Repressed|Enhancer|CTCF"
 opts$gene_overlap_dist <- 1e5 # overlap annoations with genes within xx bp
 opts$min_weight_met <- 1
 opts$min_weight_acc <- 1
-opts$min_cells_met <- 20 # loci must have observations in this many cells
-opts$min_cells_acc <- 20 # loci must have observations in this many cells
-opts$min.s         <- 15     # minimum number of samples to do the correlation
+#opts$min_cells_met <- 20 # loci must have observations in this many cells
+#opts$min_cells_acc <- 20 # loci must have observations in this many cells
+opts$min.s         <- 5     # minimum number of samples to do the correlation
 
 opts$filt_acc_var <- 0.5 # select the top xx fraction by variance
 opts$filt_met_var <- 0.5 # select the top xx fraction by variance
@@ -61,9 +75,13 @@ opts$min.coverage   <- 0.5    # minimum coverage per feature across samples (met
 opts$fraction.sites <- 0.5    # fraction of sites (met/acc) to keep based on variance
 
 opts$p_cutoff <- 0.05
-opts$cor_samples <- T
+opts$cor_samples <- F
 opts$weight <- T
 opts$method <- "pearson"      # correlation type
+#opts$method <- ""      # correlation type
+
+print(io)
+print(opts)
 
 ### functions ###
 fread_gz <- function(path, ...){fread(cmd = paste("zcat", path), ...)}
@@ -98,6 +116,7 @@ metacc_dt <-merge(
 
 ### Remove features with low weight (all types of correlation) ###
 metacc_dt <- metacc_dt[Nmet>=opts$min_weight_met & Nacc>=opts$min_weight_acc]
+print(head(metacc_dt))
 
 ### annotate wiht the nearest gene
 genes <- fread(io$gene_file) %>%
@@ -116,7 +135,7 @@ anno <- dir(io$anno_dir, full = TRUE, pattern = ".bed$") %>%
         strand = strand,
         id = id,
         anno = anno
-  )] %>% .[!chr %in% c("MT", "Y")] %>%
+  )] %>% .[!chr %in% c("MT", "Y", "M")] %>%
   .[, gene_id := grepl("ENSG", id)] %>%
   split(by = "gene_id", keep.by = FALSE)
 
@@ -130,12 +149,19 @@ anno[["FALSE"]] <- setkey(anno[["FALSE"]], chr, start, end) %>%
 anno <- map(anno, ~.[, .(id, anno, gene, ens_id)]) %>%
   rbindlist()
 
-metacc_dt <- merge(metacc_dt, anno, by = c("anno", "id"), allow.cartesian = TRUE) # note some loci have >1 gene -> cartesian join
+print(head(anno))
 
+metacc_dt <- merge(metacc_dt, anno, by = c("anno", "id"), allow.cartesian = TRUE) # note some loci have >1 gene -> cartesian join
+print(head(metacc_dt))
+print(unique(metacc_dt$anno))
 ### filter ###
 
-# remove features with small number of cells
-keep_cov_sites <- metacc_dt %>% split(.$anno) %>% map(~ .[,.(n=.N), by=c("gene","id")] %>% .[n>=opts$min_cells_met] %>% .$id)
+## remove features with small number of cells
+keep_cov_sites <- metacc_dt %>%
+    split(.$anno) %>%
+    map(~ .[,.(n=.N), by=c("gene","id")] %>%
+            .[n>=opts$min_cells_met] %>% .$id)
+
 metacc_dt <- metacc_dt %>% split(.$anno) %>% 
   map2(., names(.), function(x,y) x[id %in% keep_cov_sites[[y]]]) %>% rbindlist
 
@@ -183,13 +209,13 @@ method_cor <- function(met_rate, acc_rate){
     set_names(c("r", "std_err", "t", "p"))
 }
 
-# Weighted correlation --> why are you using just the met_weight? 
+# Weighted correlation --> using met weight because more strict
 if (opts$weight == TRUE){
   print("weighted approach")
   if (opts$method != "pearson") { print("Weighted correlation only supported for pearson"); stop() }
   if (opts$cor_samples) {
     # Correlate rate across samples
-    cor_samples <- metacc_filt[, weight_cor(met_rate, acc_rate, met_weight), .(anno, id)] %>%
+      cor_samples <- metacc_filt[, weight_cor(met_rate, acc_rate, met_weight), .(anno, id)] %>%
       .[, padj := p.adjust(p, method = "fdr"), .(anno)] %>%
       .[, logpadj := -log10(padj)] %>%
       .[, sig := padj < opts$p_cutoff]
@@ -208,11 +234,12 @@ if (opts$weight == TRUE){
       .[, padj := p.adjust(p, method = "fdr"), .(anno)] %>%
       .[, logpadj := -log10(padj)] %>%
       .[, sig := padj < opts$p_cutoff]
-  }
+  }  
   # Correlate rate across genes
   cor_features <- metacc_dt[, .(V1 = unlist(cor.test(met_rate, acc_rate, alternative = "two.sided", method = opts$method)[c("estimate", "statistic", "p.value")])), by = c("sample", "anno")]
 }
 
+print(head(cor_features))
 ###################
 ## plot results across loci
 ###################
@@ -248,29 +275,24 @@ fwrite(cor_features
 
 labs <- c("NS", "Significant")
 
-p <- ggplot(cor_samples, aes(r, logpadj, colour = sig)) +
-  geom_point() +
-  facet_wrap(~anno) +
-  scale_colour_manual(values = c("grey", "navy"), labels = labs, name = NULL) +
-  geom_hline(yintercept = -log10(opts$p_cutoff), colour = "blue", linetype = "dashed") +
-  geom_vline(aes(xintercept = mean(r)), colour = "blue") +
-  #geom_text_repel(data = cors[sig == TRUE]) +
-  labs(x = c("Weighted Pearson R"), y = "-log10 q-value") +
-  ggtitle("Correlations across samples")+
-  guides(label = FALSE) +
-  theme_bw()
-p
-
-if(!exists(io$plot_dir)){
-  dir.create(io$plot_dir)
+if (opts$cor_samples) {
+    print("make sample cor plot")
+    p <- ggplot(cor_samples, aes(r, logpadj, colour = sig)) +
+        geom_point() +
+        facet_wrap(~anno) +
+        scale_colour_manual(values = c("grey", "navy"), labels = labs, name = NULL) +
+        geom_hline(yintercept = -log10(opts$p_cutoff), colour = "blue", linetype = "dashed") +
+        geom_vline(aes(xintercept = mean(r)), colour = "blue") +
+                                        #geom_text_repel(data = cors[sig == TRUE]) +
+        labs(x = c("Weighted Pearson R"), y = "-log10 q-value") +
+        ggtitle("Correlations across samples")+
+        guides(label = FALSE) +
+        theme_bw()
+    save_plot(paste(io$plot_dir, "acc_met_correlations_samplesAnno.pdf", sep="/"), p, base_width = 12, base_height = 8)
+    dev.off()
+    fwrite(cor_samples
+         , paste(io$plot_dir, "acc_met_correlations_samples.tsv", sep="/"), sep="\t", col.names = T, row.names = F, quote=F, na="NA")
 }
-
-save_plot(paste(io$plot_dir, "acc_met_correlations_samplesAnno.pdf", sep="/"), p, base_width = 12, base_height = 8)
-
-fwrite(cor_samples
-       , paste(io$plot_dir, "acc_met_correlations_samples.tsv", sep="/"), sep="\t", 
-       col.names = T, row.names = F, quote=F, na="NA")
-
 
 
 

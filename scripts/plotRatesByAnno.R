@@ -14,6 +14,7 @@ Plots rates across the different annotations\n")
 }
 
 io <- list()
+
 ## Save values of each argument
 if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
     help()
@@ -41,7 +42,6 @@ library(ggrepel)
 #io$acc_dir   <- "data/acc"
 #io$plot_dir  <- "plots"
 #io$anno_dir  <- "data/anno"
-
 
 opts <- list()
 opts$anno_regex <- "CGI_promoter|MCF7_ER_peaks|H3K27ac_peaks|body|Repressed|Enhancer|CTCF"
@@ -133,6 +133,6 @@ p4 <- ggplot(feature_stats[Type=="met"], aes(x=anno, y=var)) +
   boxplot_theme()
 p4
 
-pdf(paste0(io$plot_dir,"/boxplots.pdf"), height=12, width=17)
+pdf(paste0(io$plot_dir,"/anno_rateVarboxplots.pdf"), height=12, width=17)
 print(cowplot::plot_grid(p1,p2,p3,p4, labels = c("Mean Rate","Mean Rate","Varience","Varience"), label_size=20, ncol=2, nrow=2))
 dev.off()

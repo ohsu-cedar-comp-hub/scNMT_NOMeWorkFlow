@@ -1,81 +1,54 @@
+args <- commandArgs()
+
+help <- function(){
+    cat("getEnsemblGenes.R :\n")
+    cat("Usage: \n")
+    cat("--gtf: path to gtf                   [required] \n")
+    cat("--met_prom: distance upstream of tss [required] \n")
+    cat("-acc_prom: distance upstream of tss  [required] \n")    
+     cat("\n")
+    q()
+}
+
+io   <- list()
+opts <- list()
+
+## Save values of each argument
+if( !is.na(charmatch("-h",args)) || !is.na(charmatch("--help",args)) ){
+    help()
+} else {
+    io$outfile <- sub( '--gtf=', '', args[grep('--gtf=', args)] )
+    opts$met_prom <- as.numeric(sub( '--met_prom=', '', args[grep('--met_prom=', args)] ))
+    opts$acc_prom <- as.numeric(sub( '--acc_prom=', '', args[grep('--acc_prom=', args)] ))
+}
+
+
 library(data.table)
 library(purrr)
 library(rtracklayer)
-## Download gtf annotation from Ensembl ##
-
-## use gtf that we already have downloaded in 
-#gtf_url <- "ftp://ftp.ensembl.org/pub/grch37/release-87/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.chr.gtf.gz"
-#(outfile <- paste0("/home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/anno/hg19/", basename(gtf_url)))
-#dir.create(dirname(outfile), recursive = TRUE)
-
-#download.file(gtf_url, outfile)
-
-#outfile <- "/home/groups/CEDAR/anno/gtf/hg19_ens87.chr.gtf"
-
-## also generate gene metadata ##
-#chrs <- sub("^", "chr", c("X", "Y", "MT", 1:22))
-
-#gtf <- rtracklayer::import(outfile) %>%
-#  as.data.frame() %>%
-#  setDT() %>%
-#  .[type == "gene" & gene_biotype == "protein_coding" & seqnames %in% chrs, 
-#    .(ens_id = gene_id,
-#      gene = gene_name, 
-#      chr = seqnames, 
-#      start, 
-#      end, 
-#      strand)] 
-  
-#gene_file <- "data/gene_metadata.tsv"
-
-#fwrite(gtf, gene_file, sep = "\t", na = "NA")
-
-#gtf$score <- 1000
-#write.table(gtf[,c("chr", "start", "end", "gene", "score", "strand")]
-#          , sub(".tsv", ".bed", gene_file), sep = "\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
-
+library(GenomicRanges)
+library(dplyr)
+library(GenomeInfoDb)
 
 ############
-#gtf_url <- "ftp://ftp.ensembl.org/pub/grch37/release-97/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz"
-#(outfile <- paste0("/home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/anno/hg19/", basename(gtf_url)))
-#dir.create(dirname(outfile), recursive = TRUE)
-
-#download.file(gtf_url, outfile)
-
-
-## also generate gene metadata ##
-#chrs <- sub("^", "chr", c("X", "Y", "MT", 1:22))
-
-#chrs <- c("X", "Y", "MT", 1:22)
-
-#gtf <- rtracklayer::import(outfile)
-
-
-#gtf <- as.data.frame(gtf) %>%
-#  setDT() %>%
-#  .[type == "gene" & gene_biotype == "protein_coding" & seqnames %in% chrs, 
-#    .(ens_id = gene_id,
-#      gene = gene_name, 
-#      chr = seqnames, 
-#      start, 
-#      end, 
-#      strand)] 
-  
-#gene_file <- paste0(dirname(outfile), "/gene_hg19.87_metadata.tsv")
-
-#fwrite(gtf, gene_file, sep = "\t", na = "NA")
-
-
-############
-outfile <- "/home/groups/CEDAR/anno/CellRanger/hg19/refdata-cellranger-hg19-3.0.0/genes/genes.gtf"
-
+#setwd("../")
+#io$outfile <- "/home/groups/CEDAR/anno/gtf/hg19_ens87.chr.gtf"
+#opts$acc_prom <- 1000
+#opts$met_prom <- 10000
 
 ## also generate gene metadata ##
 chrs <- sub("^", "chr", c("X", "Y", "MT", 1:22))
 
-chrs <- c("X", "Y", "MT", 1:22)
+print(opts)
 
-gtf <- rtracklayer::import(outfile)
+if(!(file.exists( "data/anno" ))) {
+    print(paste("mkdir", "data/anno"))
+    dir.create("data/anno",FALSE,TRUE)  
+}
+
+#chrs <- c("X", "Y", "MT", 1:22)
+
+gtf <- rtracklayer::import(io$outfile)
 
 
 gtf <- as.data.frame(gtf) %>%
@@ -87,14 +60,75 @@ gtf <- as.data.frame(gtf) %>%
       start, 
       end, 
       strand)] 
-  
-write.table(gtf, file="data/gene_hg19.cellRanger_metadata.tsv", sep = "\t")
 
-#library(GenomicFeatures)
+#gtf$chr <- sub("chr", "", gtf$chr)
+print("write data/gene_metadata.tsv")
+write.table(gtf, file="data/gene_metadata.tsv", sep = "\t", row.names=FALSE, col.names=TRUE)
 
-#gtf <- gtf[!gtf$chr %in% c("MT", "Y")]
+#######################
+## save regions for acc
+#######################
+prom <- gtf %>%
+  .[strand == "+", tss := start] %>%
+  .[strand == "-", tss := end] %>% .[!chr %in% c("chrM", "chrY", "M", "Y")]
+print(prom)
 
-#tss <- promoters(as(gtf, "GRanges"), upstream=2000, downstream=2000)
+                                        #gr <- as(prom, "GRanges") %>% .[width(.) > opts$acc_prom]
+gr <- as(prom, "GRanges")
+gr <- gr[width(gr) > opts$acc_prom]
+print(gr)
 
-#tss <- as.data.table(tss)
-#names(tss) <- sub("seqnames", "chr", names(tss))
+# save gene body info for correlations
+body      <- resize(gr, fix='end', width=width(gr)-opts$acc_prom )
+body$anno <- "body"
+body      <- as.data.table(body)
+df        <- body[,.(seqnames, start, end, strand, ens_id, anno)]
+print(head(df))
+
+print("save body without the promoter window")
+fwrite(df
+     , paste0("data/anno/", "body", opts$acc_prom, ".bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
+
+# save promoter info
+prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=opts$acc_prom, downstream=opts$acc_prom))
+
+df   <- prom[,.(seqnames, start, end, strand, ens_id, "promoter")]
+
+df <- df[!seqnames %in% c("MT", "Y"), ]
+
+print("save promoter window")
+fwrite(df
+     , paste0("data/anno/", "promoters", opts$acc_prom, ".bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
+
+#######################
+## save regions for met
+#######################
+prom <- gtf %>%
+  .[strand == "+", tss := start] %>%
+  .[strand == "-", tss := end] %>% .[!chr %in% c("MT", "Y")]
+print(prom)
+
+gr <- as(prom, "GRanges") %>% .[width(.) > opts$met_prom]
+print(gr)
+
+# save gene body info for correlations
+body      <- resize(gr, fix='end', width=width(gr)-opts$met_prom )
+body$anno <- "body"
+body      <- as.data.table(body)
+df        <- body[,.(seqnames, start, end, strand, ens_id, anno)]
+print(head(df))
+
+print("save body without the promoter window")
+fwrite(df
+     , paste0("data/anno/", "body", opts$met_prom, ".bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")
+
+# save promoter info
+prom <- as.data.table(promoters(as(prom, "GRanges"), upstream=opts$met_prom, downstream=opts$met_prom))
+
+df   <- prom[,.(seqnames, start, end, strand, ens_id, "promoter")]
+
+df <- df[!seqnames %in% c("MT", "Y"), ]
+
+print("save promoter window")
+fwrite(df
+     , paste0("data/anno/", "promoters", opts$met_prom, ".bed"), sep="\t", col.names = F, row.names = F, quote=F, na="NA")

@@ -15,6 +15,8 @@ rule counts_stats:
         i="plots/counts_stats/coverageDensityPlot.pdf",
         j="plots/counts_stats/qc_accessCoverageBar.pdf",
         k="plots/counts_stats/qc_methylCoverageBar.pdf"
+     conda:
+        "../envs/NMT_NOMe_QC.yaml"
      shell:
         "Rscript scripts/counts_stats.R --outdir=plots/counts_stats"
 
@@ -28,6 +30,13 @@ rule met_acc_QC:
         "plots/met_acc_QC/qc_meanRateBoxPlot.pdf",
         "plots/met_acc_QC/qc_coverageBoxPlot.pdf",
         "tables/sample_stats_qcPass.txt",
-        "tables/sample_read_report_qcPASS.txt",
+        "tables/sample_read_report_qcPASS.txt"
+     params:
+        accCov = config['accCov'],
+	metCov = config['metCov'],
+	accMeanTop = config['accMeanTop'],
+        accMeanBot = config['accMeanBot'],
+     conda:
+        "../envs/NMT_NOMe_QC.yaml"
      shell:
-        "Rscript scripts/met_acc_QC.R --outdir=plots/met_acc_QC"
+        "Rscript scripts/met_acc_QC.R --outdir=plots/met_acc_QC --accCov={params.accCov} --metCov={params.metCov} --accMeanTop={params.accMeanTop} --accMeanBot={params.accMeanBot}"

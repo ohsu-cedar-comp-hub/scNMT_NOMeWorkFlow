@@ -1,7 +1,7 @@
 rule trimming:
     input:
-        "samples/raw/{sample}_R1.fastq.gz",
-        "samples/raw/{sample}_R2.fastq.gz"
+        read1 = "samples/raw/{sample}_R1.fastq.gz",
+        read2 = "samples/raw/{sample}_R2.fastq.gz"
     output:
         "samples/trim/{sample}_R1.fastq.gz_trimming_report.txt",
         "samples/trim/{sample}_R1_val_1_fastqc.html",
@@ -14,7 +14,7 @@ rule trimming:
     conda:
         "../envs/trimG.yaml"
     shell:
-        """trim_galore --paired --clip_R1 6 --clip_R2 6 --trim1 --gzip --fastqc --output_dir samples/trim {input[0]} {input[1]}"""
+        """trim_galore --paired --clip_R1 6 --clip_R2 6 --trim1 --gzip --fastqc --output_dir samples/trim {input.read1} {input.read2}"""
 
 rule mapping_R1:
     input:
@@ -70,22 +70,22 @@ rule methylation_extractor:
         rev = "bismarkSE/dedup/{sample}_R2.{sample}_R2_val_2_bismark_bt2.deduplicated.bam",
     output:
         "bismarkSE/dedup/{sample}_merged.bam",
-	"bismarkSE/CX/CHG_CTOT_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CHG_OT_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CHH_CTOT_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CHH_OT_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CpG_CTOT_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CpG_OT_{sample}_merged.txt.gz",
-	"bismarkSE/CX/{sample}_merged.bismark.cov.gz",
-	"bismarkSE/CX/{sample}_merged_splitting_report.txt",
-	"bismarkSE/CX/CHG_CTOB_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CHG_OB_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CHH_CTOB_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CHH_OB_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CpG_CTOB_{sample}_merged.txt.gz",
-	"bismarkSE/CX/CpG_OB_{sample}_merged.txt.gz",
-	"bismarkSE/CX/{sample}_merged.bedGraph.gz",
-	"bismarkSE/CX/{sample}_merged.M-bias.txt"
+        "bismarkSE/CX/CHG_CTOT_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CHG_OT_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CHH_CTOT_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CHH_OT_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CpG_CTOT_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CpG_OT_{sample}_merged.txt.gz",
+        "bismarkSE/CX/{sample}_merged.bismark.cov.gz",
+        "bismarkSE/CX/{sample}_merged_splitting_report.txt",
+        "bismarkSE/CX/CHG_CTOB_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CHG_OB_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CHH_CTOB_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CHH_OB_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CpG_CTOB_{sample}_merged.txt.gz",
+        "bismarkSE/CX/CpG_OB_{sample}_merged.txt.gz",
+        "bismarkSE/CX/{sample}_merged.bedGraph.gz",
+        "bismarkSE/CX/{sample}_merged.M-bias.txt"
     conda:
         "../envs/methylome.yaml"
     shell:
@@ -96,43 +96,92 @@ rule methylation_extractor:
 
 rule coverage2cytosine:
     input:
-        cov = "bismarkSE/CX/{sample}_merged.bismark.cov.gz", 
+        "bismarkSE/CX/{sample}_merged.bismark.cov.gz" 
     output:
         "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.CpG.cov.gz",
-	"bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.CpG_report.txt.gz",
+        "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.CpG_report.txt.gz",
         "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.GpC.cov.gz",
-	"bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.GpC_report.txt.gz",	
-    params:	
+        "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.GpC_report.txt.gz"	
+    params:
         bismark_index = config["bismark_index"]
     conda:
         "../envs/methylome.yaml"
     shell:
-        """coverage2cytosine --nome-seq --gzip --output {wildcards.sample}_merged --dir bismarkSE/CX/coverage2cytosine_1based --genome_folder {params.bismark_index} {input.cov}"""
+        """
+        coverage2cytosine --nome-seq --gzip --output {wildcards.sample}_merged --dir bismarkSE/CX/coverage2cytosine_1based --genome_folder {params.bismark_index} {input}
+        """
 
-rule c2c_cov_filter:
+#rule c2c_cov_filter:
+#     input:
+#        "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.CpG.cov.gz",
+#        "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.GpC.cov.gz"
+#     output:
+#        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_CpG.tsv.gz",
+#        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_GpC.tsv.gz"
+#     shell:
+#        """
+#        zmore {input[0]} | awk  -vOFS='\\t' '{{ if ($5>0 || $6>0)  {{print $1,$2,$5,$6}}}}' | sort -k 1,1 -k2,2n -S 1G --parallel 6 | gzip > bismarkSE/CX/coverage2cytosine_1based/filt/{wildcards.sample}_CpG.tsv.gz
+#        zmore {input[1]} | awk  -vOFS='\\t' '{{ if ($5>0 || $6>0)  {{print $1,$2,$5,$6}}}}' | sort -k 1,1 -k2,2n -S 1G --parallel 6 | gzip > bismarkSE/CX/coverage2cytosine_1based/filt/{wildcards.sample}_GpC.tsv.gz
+#        """
+
+#rule binarize:
+#     input:
+#        expand("bismarkSE/CX/coverage2cytosine_1based/filt/{{sample}}_{filtbin}",filtbin=filtbin)
+#        #cpg="bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_CpG.tsv.gz",
+#        #gpc="bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_GpC.tsv.gz"
+#     output:
+#        "bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz",
+#        "bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_GpC.gz"
+#     conda:
+#        "../envs/NMT_Binarize.yaml"
+#     shell:
+#        """
+#        Rscript scripts/binarize.R --infile={input[0]} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
+#        Rscript scripts/binarize.R --infile={input[1]} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
+#        """
+
+rule c2c_cov_filter_met:
      input:
-        "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.CpG.cov.gz",
-	"bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.GpC.cov.gz"
+        "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.CpG.cov.gz"
      output:
-        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_CpG.tsv.gz",
+        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_CpG.tsv.gz"
+     shell:
+        """
+        bash scripts/coverage2cytosine_cov_filter.sh -i {input} -o {output} -c 6 
+        """
+
+rule c2c_cov_filter_acc:
+     input:
+        "bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.GpC.cov.gz"
+     output:
         "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_GpC.tsv.gz"
      shell:
         """
-	zmore {input[0]} | awk  -vOFS='\\t' '{{ if ($5>0 || $6>0)  {{print $1,$2,$5,$6}}}}' | sort -k 1,1 -k2,2n -S 1G --parallel 6 | gzip > bismarkSE/CX/coverage2cytosine_1based/filt/{wildcards.sample}_CpG.tsv.gz
-	zmore {input[1]} | awk  -vOFS='\\t' '{{ if ($5>0 || $6>0)  {{print $1,$2,$5,$6}}}}' | sort -k 1,1 -k2,2n -S 1G --parallel 6 | gzip > bismarkSE/CX/coverage2cytosine_1based/filt/{wildcards.sample}_GpC.tsv.gz
+        bash scripts/coverage2cytosine_cov_filter.sh -i {input} -o {output} -c 6 
         """
 
-rule binarize:
+rule binarize_met:
      input:
-        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_CpG.tsv.gz",
+        "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_CpG.tsv.gz"
+     output:
+        "bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz"
+     conda:
+        "../envs/NMT_Binarize.yaml"
+     shell:
+        """
+        Rscript scripts/binarize.R --infile={input} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
+        """
+
+rule binarize_acc:
+     input:
         "bismarkSE/CX/coverage2cytosine_1based/filt/{sample}_GpC.tsv.gz"
      output:
-        "bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz",
         "bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_GpC.gz"
+     conda:
+        "../envs/NMT_Binarize.yaml"
      shell:
         """
-	Rscript scripts/binarize.R --infile={input[0]} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
-	Rscript scripts/binarize.R --infile={input[1]} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
+        Rscript scripts/binarize.R --infile={input} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
         """
 
 rule create_reports:
@@ -142,6 +191,3 @@ rule create_reports:
         "tables/bismarkSE_mapping_report.txt"
      shell:
         "bash scripts/reports.sh"
-        
-
-

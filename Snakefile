@@ -16,16 +16,20 @@ timestamp = ('{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now()))
 
 configfile:"config.yaml"
 project_id = config["project_id"]
-
+acc_prom = config["acc_prom"]
+met_prom = config["met_prom"]
 
 SAMPLES, = glob_wildcards("samples/raw/{sample}_R1.fastq.gz")
 
-bismark_ext = ['pe.bam', 'PE_report.txt']
 CX_ext1 = ['CHG','CHH','CpG']
 CX_ext2 = ['CTOT','OT','CTOB','OB']
 CX_report = ['_splitting_report.txt','.bedGraph.gz','.M-bias.txt']
 c2c = ['CpG_report.txt.gz','GpC_report.txt.gz']
+filt = ['CpG.tsv.gz','GpC.tsv.gz']
+filtbin = ['CpG.gz','GpC.gz']
+filtbindir = ['bismarkSE/CX/coverage2cytosine_1based/filt/binarised']
 metORacc = ['met','acc']
+regions = ['body', 'promoters']
 
 ## generates log dirs from json file
 with open('cluster.json') as json_file:
@@ -60,11 +64,9 @@ for sample in SAMPLES:
 ### everytime output has variable need to expand if no single file no expansion
 rule all:
     input:
-        expand("samples/trim/{sample}_R1.fastq.gz_trimming_report.txt", sample = SAMPLES),
-	expand("samples/trim/{sample}_R2.fastq.gz_trimming_report.txt", sample = SAMPLES),
-        expand("samples/trim/{sample}_R1_val_1_fastqc.html", sample = SAMPLES),
-        expand("samples/trim/{sample}_R1_val_1_fastqc.zip", sample = SAMPLES),
-	expand("samples/trim/{sample}_R2_val_2_fastqc.html", sample = SAMPLES),
+#        expand("samples/trim/{sample}_R{replicate}.fastq.gz_trimming_report.txt", sample = SAMPLES, replicate=[1, 2]),
+#        expand("samples/trim/{sample}_R{replicate}_val_{replicate}_fastqc.html", sample = SAMPLES, replicate=[1, 2]),
+#        expand("samples/trim/{sample}_R{replicate}_val_{replicate}_fastqc.zip", sample = SAMPLES, replicate=[1, 2]),
         expand("samples/trim/{sample}_R2_val_2_fastqc.zip", sample = SAMPLES),
 	expand("bismarkSE/{sample}_R1.{sample}_R1_val_1_bismark_bt2_SE_report.txt", sample = SAMPLES),
 	expand("bismarkSE/{sample}_R2.{sample}_R2_val_2_bismark_bt2_SE_report.txt", sample = SAMPLES),
@@ -89,7 +91,7 @@ rule all:
         "plots/counts_stats/coverageDensityPlot.pdf",
         "plots/counts_stats/qc_accessCoverageBar.pdf",
         "plots/counts_stats/qc_methylCoverageBar.pdf",
-	"plots/met_acc_QC/qc_accessCoverageBar.pdf",
+        "plots/met_acc_QC/qc_accessCoverageBar.pdf",
         "plots/met_acc_QC/qc_methylCoverageBar.pdf",
         "plots/met_acc_QC/qc_methylMeanCoverageBar.pdf",
         "plots/met_acc_QC/qc_accessMeanCoverageBar.pdf",
@@ -97,13 +99,19 @@ rule all:
         "plots/met_acc_QC/qc_coverageBoxPlot.pdf",
         "tables/sample_stats_qcPass.txt",
         "tables/sample_read_report_qcPASS.txt",
-	"data/accessibility_at_promoters.pdf",
-	"data/accessibility_at_promoters.RData",
-	"data/anno/body.bed",
-	"data/anno/promoters.bed",
-	"data/methylation_at_promoters.pdf",
-	"data/methylation_at_promoters.RData",
-	expand("data/{metORacc}/body.tsv.gz", metORacc = metORacc),
+        "plots/profiles/accessibility_at_promoters.RData",	
+	"plots/profiles/accessibility_at_promoters.pdf",
+	"plots/profiles/accessibility_average_promoters.pdf",
+#	"data/anno/body.bed",
+#	"data/anno/promoters.bed",
+	expand("data/anno/{regions}{acc_prom}.bed", acc_prom = acc_prom, regions = regions),
+	expand("data/anno/{regions}{met_prom}.bed", met_prom = met_prom, regions = regions),
+	"plots/profiles/methylation_at_promoters.RData",
+        "plots/profiles/methylation_at_promoters.pdf",
+	"plots/profiles/methylation_average_promoters.pdf",
+	"data/anno/CGI_promoters1000.bed",
+	"data/anno/nonCGI_promoters1000.bed",
+ 	expand("data/{metORacc}/body.tsv.gz", metORacc = metORacc),
         expand("data/{metORacc}/CGI_promoter.tsv.gz", metORacc = metORacc),
         expand("data/{metORacc}/CTCF.tsv.gz", metORacc = metORacc),
         expand("data/{metORacc}/Enhancer.tsv.gz", metORacc = metORacc),
@@ -111,10 +119,9 @@ rule all:
         expand("data/{metORacc}/MCF7_H3K27ac_peaks.tsv.gz", metORacc = metORacc),
         expand("data/{metORacc}/nonCGI_promoter.tsv.gz", metORacc = metORacc),
         expand("data/{metORacc}/Repressed.tsv.gz", metORacc = metORacc),
-	"plots/accmet_rates_anno.boxplot.pdf",
-	"plots/accmet_variance_anno.boxplot.pdf",
+	"plots/anno_rateVarboxplots.pdf",
 	"plots/corr/acc_met_correlations_loci.pdf",
-        "plots/corr/acc_met_correlations_samplesAnno.pdf"
+        "plots/corr/acc_met_correlations_loci.tsv",
 
 ## must include all rules
 include: "rules/bismart.smk"

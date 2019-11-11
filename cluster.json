@@ -73,21 +73,39 @@
         "c" : 4,
         "mem" : 64000
     },
-    "c2c_cov_filter" :
+    "c2c_cov_filter_met" :
     {
 	"t" : "3:00:00",
-	"J" : "c2c_filter",
-	"o" : "logs/c2c_cov_filter/c2c_filter%j.out",
-	"e" : "logs/c2c_cov_filter/c2c_filter%j.err",
+	"J" : "c2c_filter_met",
+	"o" : "logs/c2c_cov_filter_met/c2c_filter_met%j.out",
+	"e" : "logs/c2c_cov_filter_met/c2c_filter_met%j.err",
 	"c" : 6,
 	"mem" : 64000
     },
-    "binarize" :
+    "c2c_cov_filter_acc" :
     {
 	"t" : "3:00:00",
-	"J" : "binarize",
-	"o" : "logs/binarize/binarize%j.out",
-	"e" : "logs/binarize/binarize%j.err",
+	"J" : "c2c_filteacc",
+	"o" : "logs/c2c_cov_filter_acc/c2c_filter_acc%j.out",
+	"e" : "logs/c2c_cov_filter_acc/c2c_filter_acc%j.err",
+	"c" : 6,
+	"mem" : 64000
+    },
+    "binarize_met" :
+    {
+	"t" : "3:00:00",
+	"J" : "binarize_met",
+	"o" : "logs/binarize_met/binarize_met%j.out",
+	"e" : "logs/binarize_met/binarize_met%j.err",
+	"c" : 6,
+	"mem" : 64000
+    },
+    "binarize_acc" :
+    {
+	"t" : "3:00:00",
+	"J" : "binarize_acc",
+	"o" : "logs/binarize_acc/binarize_acc%j.out",
+	"e" : "logs/binarize_acc/binarize_acc%j.err",
 	"c" : 6,
 	"mem" : 64000
     },

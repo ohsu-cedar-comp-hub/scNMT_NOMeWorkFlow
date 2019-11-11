@@ -1,10 +1,36 @@
 bismark_index:
   /home/groups/CEDAR/anno/indices/bismark/bowtie2/hg19/
 project_id:
-  NMT-seq-20190308
-samples:
-  /home/groups/CEDAR/woodfin/projects/ChIP-seq-pipeline/data/ChIP_metadata.txt
+  20191024_BC10
 trim_dir:
   samples/trim
 map_dir:
   bismarkSE
+acc_prom:
+  1000
+met_prom:
+  10000
+gtf_file:
+  /home/groups/CEDAR/anno/gtf/hg19_ens87.chr.gtf
+accBed:
+  data/anno/promoters1000.bed
+metBed:
+  data/anno/promoters10000.bed
+bedtools:
+  /home/groups/CEDAR/tools/bedtools
+cpg:
+  /home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/anno/hg19/corr/hg19_CpGislands_UCSC.bed
+annoDir:
+  data/anno
+min_cells_acc:
+  5
+min_cells_met:
+  5
+accCov:
+  50000
+metCov:
+  50000
+accMeanTop:
+  45
+accMeanBot:
+  20

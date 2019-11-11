@@ -5,24 +5,43 @@ help <- function(){
 - QC for the methylation and accessibility
 - output is #FIXME")
     cat("Usage: /n")
-    cat("--outdir    : Path to ouput dir                    [ required ]\n")
+    cat("--outdir    : Path to ouput dir                        [ required ]\n")
+    cat("--accCov    : acc_coverage_threshold (50000, 1e5, 1e6) [ required ]\n")
+    cat("--accMeanBot: acc_mean_threshold.bottom (20)           [ required ]\n")
+    cat("--accMeanTop: acc_mean_threshold.top (45)              [ required ]\n")
+    cat("--metCov    : acc_coverage_threshold (50000, 1e5, 1e6) [ required ]\n")
     cat("\n")
     q()
 }
+
+io <- list()
+opts <- list()
+
+## set options for filtering
+#outdir <- "plots/met_acc_QC"
+#acc_coverage_threshold    <- 50000
+#acc_mean_threshold.bottom <- 20
+#acc_mean_threshold.top    <- 45
+#met_coverage_threshold    <- 50000
 
 ## Save values of each argument
 if(!is.na(charmatch("--help",args)) || !is.na(charmatch("-h",args)) ){
     help()
 } else{
     outdir   <- sub('--outdir=', '', args[grep('--outdir=', args)] )
+    acc_coverage_threshold    <- as.numeric(sub('--accCov=', '', args[grep('--accCov=', args)] ))
+    acc_mean_threshold.bottom <- as.numeric(sub('--accMeanBot=', '', args[grep('--accMeanBot=', args)] ))
+    acc_mean_threshold.top    <- as.numeric(sub('--accMeanTop=', '', args[grep('--accMeanTop=', args)] ))
+    met_coverage_threshold    <- as.numeric(sub('--metCov=', '', args[grep('--metCov=', args)] ))
+
 }
 
-suppressMessages(library(data.table))
-suppressMessages(library(purrr))
-suppressMessages(library(tidyr))
-suppressMessages(library(ggplot2))
-suppressMessages(library(cowplot))
-suppressMessages(library(argparse))
+library(data.table)
+library(purrr)
+library(tidyr)
+library(ggplot2)
+library(cowplot)
+library(argparse)
 
 if(!(file.exists( outdir ))) {
     dir.create(outdir,FALSE,TRUE)  
@@ -49,15 +68,13 @@ barplot_theme <- function() {
   )
 }
 
-## set options for filtering
-opts <- list()
-opts$acc_coverage_threshold    <- 1e6
-opts$acc_mean_threshold.bottom <- 20
-opts$acc_mean_threshold.top    <- 45
-opts$met_coverage_threshold    <- 1e5
+opts$acc_coverage_threshold    <- acc_coverage_threshold
+opts$acc_mean_threshold.bottom <- acc_mean_threshold.bottom
+opts$acc_mean_threshold.top    <- acc_mean_threshold.top
+opts$met_coverage_threshold    <- met_coverage_threshold
+
 
 ## I/O ##
-io                         <- list()
 io$sample.metadata         <- "tables/sample_read_report.txt"
 io$sample.metadata_updated <- "tables/sample_read_report_qcPASS.txt"
 io$in.accdir               <- "bismarkSE/CX/coverage2cytosine_1based/filt/binarised"
