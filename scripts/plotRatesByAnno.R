@@ -26,6 +26,10 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
     io$anno_dir   <- sub( '--anno=', '', args[grep('--anno', args)] )
 }
 
+if ("weights" %in% rownames(installed.packages()) == FALSE) {
+    install.packages("weights", repos="https://ftp.osuosl.org/pub/cran/")
+}
+
 library(scater)
 library(data.table)
 library(purrr)
