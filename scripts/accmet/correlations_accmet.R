@@ -37,6 +37,9 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
     opts$min_cells_acc <- sub( '--min_cells_acc=', '', args[grep('--min_cells_acc', args)] )
 }
 
+if ("weights" %in% rownames(installed.packages()) == FALSE) {
+    install.packages("weights", repos="https://ftp.osuosl.org/pub/cran/")
+}
 
 #library(SingleCellExperiment)
 library(scater)

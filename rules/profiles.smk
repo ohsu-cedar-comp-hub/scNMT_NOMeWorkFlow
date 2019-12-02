@@ -65,12 +65,10 @@ rule annotate_acc:
         "data/gene_metadata.tsv"
      output:
         "data/acc/body.tsv.gz",
-        "data/acc/CGI_promoter.tsv.gz",
         "data/acc/CTCF.tsv.gz",
         "data/acc/Enhancer.tsv.gz",
         "data/acc/MCF7_ER_peaks.tsv.gz",
         "data/acc/MCF7_H3K27ac_peaks.tsv.gz",
-        "data/acc/nonCGI_promoter.tsv.gz",
         "data/acc/Repressed.tsv.gz"
      conda:
         "../envs/NMT_annotate.yaml"        	
@@ -83,12 +81,10 @@ rule annotate_met:
 	"data/gene_metadata.tsv"
      output:
         "data/met/body.tsv.gz",
-        "data/met/CGI_promoter.tsv.gz",
         "data/met/CTCF.tsv.gz",
         "data/met/Enhancer.tsv.gz",
         "data/met/MCF7_ER_peaks.tsv.gz",
         "data/met/MCF7_H3K27ac_peaks.tsv.gz",
-        "data/met/nonCGI_promoter.tsv.gz",
         "data/met/Repressed.tsv.gz"
      conda:
         "../envs/NMT_annotate.yaml"        
@@ -99,20 +95,16 @@ rule plot_anno:
      input:
         "tables/sample_stats_qcPass.txt",
         "data/acc/body.tsv.gz",
-        "data/acc/CGI_promoter.tsv.gz",
         "data/acc/CTCF.tsv.gz",
         "data/acc/Enhancer.tsv.gz",
         "data/acc/MCF7_ER_peaks.tsv.gz",
         "data/acc/MCF7_H3K27ac_peaks.tsv.gz",
-        "data/acc/nonCGI_promoter.tsv.gz",
         "data/acc/Repressed.tsv.gz",
         "data/met/body.tsv.gz",
-        "data/met/CGI_promoter.tsv.gz",
         "data/met/CTCF.tsv.gz",
         "data/met/Enhancer.tsv.gz",
         "data/met/MCF7_ER_peaks.tsv.gz",
         "data/met/MCF7_H3K27ac_peaks.tsv.gz",
-        "data/met/nonCGI_promoter.tsv.gz",
         "data/met/Repressed.tsv.gz"
      output:
         "plots/anno_rateVarboxplots.pdf"
@@ -126,20 +118,16 @@ rule accmet_corr:
         "tables/sample_stats_qcPass.txt",
 	"data/gene_metadata.tsv",
 	"data/acc/body.tsv.gz",
-        "data/acc/CGI_promoter.tsv.gz",
         "data/acc/CTCF.tsv.gz",
         "data/acc/Enhancer.tsv.gz",
         "data/acc/MCF7_ER_peaks.tsv.gz",
         "data/acc/MCF7_H3K27ac_peaks.tsv.gz",
-        "data/acc/nonCGI_promoter.tsv.gz",
         "data/acc/Repressed.tsv.gz",
         "data/met/body.tsv.gz",
-        "data/met/CGI_promoter.tsv.gz",
         "data/met/CTCF.tsv.gz",
         "data/met/Enhancer.tsv.gz",
         "data/met/MCF7_ER_peaks.tsv.gz",
         "data/met/MCF7_H3K27ac_peaks.tsv.gz",
-        "data/met/nonCGI_promoter.tsv.gz",
         "data/met/Repressed.tsv.gz"
      output:
         "plots/corr/acc_met_correlations_loci.pdf",
