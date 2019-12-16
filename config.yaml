@@ -27,9 +27,9 @@ min_cells_acc:
 min_cells_met:
   5
 accCov:
-  50000
+  100000
 metCov:
-  50000
+  100000
 accMeanTop:
   45
 accMeanBot:

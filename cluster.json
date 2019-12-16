@@ -26,7 +26,7 @@
         "o" : "logs/mapping_R1/mapReads_single_controls_R1%j.out",
         "e" : "logs/mapping_R1/mapReads_single_controls_R1%j.err",
         "c" : 8,
-        "mem" : 128000
+        "mem" : 156000
     },
     "mapping_R2" :
     {
@@ -35,7 +35,7 @@
         "o" : "logs/mapping_R2/mapReads_single_controls_R2%j.out",
         "e" : "logs/mapping_R2/mapReads_single_controls_R2%j.err",
         "c" : 8,
-        "mem" : 128000
+        "mem" : 156000
     },
     "deduplcate_bam_R1" :
     {

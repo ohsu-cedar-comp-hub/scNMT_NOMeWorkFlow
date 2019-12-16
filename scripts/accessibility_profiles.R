@@ -57,7 +57,7 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 #io$bodyBed <- "data/body1000.bed"
 #opts$context <- "CG"
 #opts$win <- 100
-#opts$step <- 20#
+#opts$step <- 20
 #opts$covCutOff <- 0
 #io$out_dir <- "plots/profiles"
 #io$plot_dir <- "plots/profiles"
@@ -115,12 +115,13 @@ library(cowplot)
 library(GenomicRanges)
 library(dplyr)
 library(GenomeInfoDb)
+library(stringr)
 
 print(io)
 print(opts)
 
 meta <- fread(io$qc_file) %>%
-    .[pass_accQC == TRUE & pass_metQC == TRUE]
+    .[pass_accQC == TRUE & pass_metQC == TRUE & pass_CHGQC==TRUE & pass_CHHQC==TRUE]
 print(meta)
 
 cells <- unique(meta[, id])
@@ -196,7 +197,7 @@ acc <- map2(cells, files, ~{
 }) %>%
   rbindlist()
 
-acc <- acc[order(acc$cell, acc$dist),]
+acc <- acc[order(acc$cell,acc$dist),]
 print(head(acc))
 print("save rates at promoters")
 save(acc,file=paste(io$out_dir, paste0(opts$outName, "_at_promoters.RData"), sep="/"))
@@ -222,20 +223,30 @@ Rate <- as.data.frame(do.call(rbind,lapply(seq(1,nrow(acc)-1,by=2), function(i){
 Avg$rate <- Rate[,1]
 print(head(Avg))
 
+Avg$condition <- str_extract(Avg$cell, "[^_]+")
 ###################
 
-cell_Avg <- tapply(Avg$rate, Avg$dist, mean)
-cell_sd <- tapply(Avg$rate, Avg$dist, sd)
+Avg_list <- split(Avg, Avg$condition)
+Avg_df <- data.frame()
 
-test_df <- as.data.frame(cbind(cell_Avg, cell_sd))
-test_df$dist <- rownames(test_df)
-test_df <- as.data.table(test_df)
-test_df$dist <- as.integer(test_df$dist)
+for (elem in Avg_list) {
+    cell_Avg <- tapply(elem$rate, elem$dist, mean)
+    cell_sd <- tapply(elem$rate, elem$dist, sd)
+
+    test_df <- as.data.frame(cbind(cell_Avg, cell_sd))
+    test_df$dist <- rownames(test_df)
+    test_df <- as.data.table(test_df)
+    test_df$dist <- as.integer(test_df$dist)
+    test_df$condition <- rep(unique(elem$condition),length(test_df$dist))
+
+    Avg_df <- rbind(Avg_df, test_df)
+}
 
 print("plot average at promoters")
-p <- ggplot(test_df, aes(dist)) +
+p <- ggplot(Avg_df, aes(dist)) +
     geom_ribbon(aes(y = cell_Avg, ymin = cell_Avg-cell_sd, ymax = cell_Avg+cell_sd), alpha = 0.25) +
     geom_line(aes(y = cell_Avg), color = "red") +
+    facet_wrap(~condition, ncol=2) +
     theme_bw() +
     guides(colour = FALSE) +
     labs(y="Rate",x="Distance from Promoter")
@@ -248,10 +259,10 @@ p <- ggplot(Avg, aes(dist)) +
     #geom_line(aes(y = sd_down, colour = cell), linetype = "dashed") +
     geom_line(aes(y = rate, colour = cell)) +
     #geom_line(aes(y = sd_up, colour = cell), linetype = "dashed") +
+    facet_wrap(~condition, ncol=2) +
     theme_bw() +
     guides(colour = FALSE) +
     labs(y="Rate",x="Distance from Promoter")
-
 
 save_plot(paste(io$out_dir, paste0(opts$outName, "_at_promoters.pdf"),sep="/"), p)
 dev.off()
