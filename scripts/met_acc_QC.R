@@ -36,6 +36,7 @@ if(!is.na(charmatch("--help",args)) || !is.na(charmatch("-h",args)) ){
 
 }
 
+library(stringr)
 library(data.table)
 library(purrr)
 library(tidyr)
@@ -49,6 +50,7 @@ if(!(file.exists( outdir ))) {
 
 Dir <- outdir
 statsfile <- "tables/sample_stats.txt"
+mapping_file <- "tables/bismarkSE_mapping_report.txt"
 
 barplot_theme <- function() {
   p <- theme(
@@ -96,6 +98,20 @@ df <- data.table(merge(as.data.frame(stats), as.data.frame(metadata[!duplicated(
 dim(df)
 head(df)
 
+mapping_report <- fread(mapping_file,sep="\t", verbose=F, showProgress=F)
+head(mapping_report)
+
+eh <- as.data.frame(mapping_report[,c(1,7,8)])
+colnames(eh) <- c("sample", "CHG", "CHH")
+eh$cell <- gsub("_R[0-9]", "", eh$sample)
+
+map_df <- cbind(as.data.frame(tapply(as.numeric(gsub("%","",eh$CHH)),eh$cell,mean)),as.data.frame(tapply(as.numeric(gsub("%","",eh$CHG)),eh$cell,mean)))
+map_df$sample <- rownames(map_df)
+colnames(map_df) <- c("CHH","CHG","sample")
+
+df <- merge(map_df, df, by="sample")
+df$condition <- str_extract(df$condition, "[^_]+")
+
 # Define which cells to use
 opts$cells <- metadata$id_acc
 opts$cells_to_drop <- stats$sample[grep("^cells100", stats$sample)]
@@ -109,7 +125,7 @@ if(length(opts$cells_to_drop) >0){
 ## function for each context to make ranked coverage and mean rate plots highlighting cells that do not pass QC
 #############
 for (Context in c("GC","CG")){
-    stats.tmp <- df[context==Context,]
+    stats.tmp <- as.data.table(subset(df, context == Context))
     if(Context=="GC"){
         Title <- "Chromatin accessibility"
         fname <- "qc_accessCoverageBar.pdf"
@@ -168,11 +184,56 @@ for (Context in c("GC","CG")){
     rm(tmp)
 }
 
+
+
+######################
+## table cells that pass QC
+######################
+
+df <- as.data.table(df)
+
+## this table has a line for each context with coverage and rate and pass and fail QC
+met_failqc <- df[context=="CG" & coverage < opts$met_coverage_threshold, sample]
+acc_failqc <- df[context=="GC" & coverage < opts$acc_coverage_threshold, sample]
+CHG_failqc <- df[CHG > 20, sample]
+CHH_failqc <- df[CHH > 20, sample]
+
+df <- df[,c("pass_metQC","pass_accQC", "pass_CHGQC", "pass_CHHQC"):=TRUE]
+
+df[context=="CG" & sample %in% met_failqc,pass_metQC:=FALSE]
+df[context=="GC" & sample %in% acc_failqc,pass_accQC:=FALSE]
+df[sample %in% CHG_failqc,pass_CHGQC:=FALSE]
+df[sample %in% CHH_failqc,pass_CHHQC:=FALSE]
+
+fwrite(df, io$stats_updated, sep="\t", col.names = T, row.names = F, quote=F, na="NA")
+
+## this table only has 1 line per sample with the read mapping summaries and pass and fail QC
+
+
+metadata <- metadata[,c("pass_metQC","pass_accQC","pass_CHGQC","pass_CHHQC"):=FALSE]
+
+metadata[!sample %in% met_failqc,pass_metQC:=TRUE]
+metadata[!sample %in% acc_failqc,pass_accQC:=TRUE]
+metadata[!sample %in% CHG_failqc,pass_CHGQC:=TRUE]
+metadata[!sample %in% CHH_failqc,pass_CHHQC:=TRUE]
+
+metadata[sample %in% opts$cells_to_drop,c("pass_metQC","pass_accQC","pass_CHGQC","pass_CHHQC"):=FALSE]
+
+metadata <- metadata[!duplicated(sample),]
+
+
+fwrite(metadata, io$sample.metadata_updated, sep="\t", col.names = T, row.names = F, quote=F, na="NA")
+
+
+
+
 #############
 ## Boxplots
 #############
+plot_df <- subset(df, pass_CHGQC==TRUE)
+
 p <-
-    ggplot(df, aes(x=context, y=mean)) +
+    ggplot(plot_df, aes(x=context, y=mean)) +
     geom_boxplot(aes(fill = context), alpha=1.0, outlier.shape = NA) +
     #geom_jitter(alpha=0.5, color=c("#00136C", "#F87D42")) +
     geom_jitter(aes(color = context), alpha=0.5) +
@@ -181,6 +242,7 @@ p <-
                       labels=c("CG methylation","GC accessibility"))+
     coord_cartesian(ylim=c(0,1)) +
     ylab("Genome-wide mean rates") +
+    facet_wrap(~condition) +
     theme_bw() +
     theme(
         axis.title.y = element_text(colour="black", size=17, margin=margin(0,20,0,0)),
@@ -198,7 +260,7 @@ print(p)
 dev.off()
 
 p <-
-    ggplot(df, aes(x=context, y=coverage)) +
+    ggplot(plot_df, aes(x=context, y=coverage)) +
     geom_boxplot(aes(fill = context), alpha=1.0, outlier.shape = NA) +
     #geom_jitter(alpha=0.5, color=c("#00136C", "#F87D42")) +
     geom_jitter(aes(color = context), alpha=0.5) +
@@ -206,6 +268,7 @@ p <-
     scale_fill_manual("legend", values = c("GC" = "#F87D42", "CG" = "#00136C"),
                       labels=c("CG methylation","GC accessibility"))+
     ylab("Number of observed sites") +
+    facet_wrap(~condition) +
     theme_bw() +
     #scale_y_log10()+
     theme(
@@ -223,35 +286,4 @@ pdf(file=paste(Dir, "qc_coverageBoxPlot.pdf", sep="/"), width=5, height=5)
 print(p)
 dev.off()
 
-######################
-## table cells that pass QC
-######################
-## this table has a line for each context with coverage and rate and pass and fail QC
-met_failqc <- df[context=="CG" & coverage < opts$met_coverage_threshold, sample]
-acc_failqc <- df[context=="GC" & coverage < opts$acc_coverage_threshold, sample]
 
-df <- df[,c("pass_metQC","pass_accQC"):=TRUE]
-
-df[context=="CG" & sample %in% met_failqc,pass_metQC:=FALSE]
-df[context=="GC" & sample %in% acc_failqc,pass_accQC:=FALSE]
-
-fwrite(df, io$stats_updated, sep="\t", col.names = T, row.names = F, quote=F, na="NA")
-
-## this table only has 1 line per sample with the read mapping summaries and pass and fail QC
-
-
-metadata <- metadata[,c("pass_metQC","pass_accQC"):=FALSE]
-
-metadata[!sample %in% met_failqc,pass_metQC:=TRUE]
-metadata[!sample %in% acc_failqc,pass_accQC:=TRUE]
-
-metadata[sample %in% opts$cells_to_drop,c("pass_metQC","pass_accQC"):=FALSE]
-
-metadata <- metadata[!duplicated(sample),]
-
-
-fwrite(metadata, io$sample.metadata_updated, sep="\t", col.names = T, row.names = F, quote=F, na="NA")
-
-#############
-## call the number of cpgs that overlap with the annotate script
-#############

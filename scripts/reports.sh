@@ -1,5 +1,5 @@
 echo -e "Sample TotalReads MappedReads PercentMapped Total_Cs CpG CHG CHH " | tr ' ' '\t'  > tables/bismarkSE_mapping_report.txt
-grep -v Project data/metadata.txt  | cut -f 4 | while read Name; do
+grep -v Project data/metadata.txt  | cut -f 2 | while read Name; do
     for x in 1 2; do
         Reads=`grep "^Sequences analysed in total" bismarkSE/${Name}_R${x}.${Name}_R${x}_val_${x}_bismark_bt2_SE_report.txt | awk '{print $5}'`
         Mapped=`grep "^Number of alignments with" bismarkSE/${Name}_R${x}.${Name}_R${x}_val_${x}_bismark_bt2_SE_report.txt | awk '{print $13}'`

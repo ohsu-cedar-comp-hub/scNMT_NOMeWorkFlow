@@ -63,7 +63,7 @@ fread_gz = function(filename, ...){
 ### load metadata and select cells/files ###
 
 meta  <- fread(io$meta_data)
-meta  <- meta[context == "GC" & pass_accQC == TRUE]
+meta  <- meta[context == "GC" & pass_accQC == TRUE & pass_CHGQC == TRUE & pass_CHHQC == TRUE]
 print(head(meta))
 
 cells <- unique(meta[, sample])

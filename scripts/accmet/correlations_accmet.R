@@ -94,7 +94,7 @@ fread_gz <- function(path, ...){fread(x, ...)}
 ### load metadata and select cells ####
 meta <- fread(io$nome_meta_data)
 meta <- meta %>%
-  .[pass_accQC == TRUE & pass_metQC == TRUE ]
+  .[pass_accQC == TRUE & pass_metQC == TRUE & pass_CHGQC == TRUE & pass_CHHQC == TRUE]
 
 ### load met data ###
 met <- dir(io$met_dir, pattern = ".tsv.gz$", full = TRUE) %>%

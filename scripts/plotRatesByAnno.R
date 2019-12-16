@@ -52,7 +52,7 @@ opts$anno_regex <- "CGI_promoter|MCF7_ER_peaks|H3K27ac_peaks|body|Repressed|Enha
 
 
 meta <- fread(io$meta_data) %>%
-  .[pass_accQC == TRUE & pass_metQC == TRUE]
+  .[pass_accQC == TRUE & pass_metQC == TRUE & pass_CHGQC == TRUE & pass_CHHQC == TRUE]
 
 met <- dir(io$met_dir, pattern = ".tsv.gz$", full = TRUE) %>%
   .[grep(opts$anno_regex, .)] %>%
