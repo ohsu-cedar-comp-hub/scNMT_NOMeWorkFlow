@@ -46,7 +46,7 @@ library(furrr)
 
 dir.create(io$out_dir, recursive = TRUE)
 
-opts$anno_regex <- "GI_promoters1000.bed|MCF7_ER_peaks|H3K27ac_peaks|body1000.bed|Repressed|Enhancer|CTCF" # use to select specific annotations
+opts$anno_regex <- "CGI_promoters1000.bed|MCF7_ER_peaks|H3K27ac_peaks|body1000.bed|Repressed|Enhancer|CTCF" # use to select specific annotations
 opts$parallel <- FALSE
 opts$cores <- 2
 opts$gzip <- TRUE
@@ -67,7 +67,7 @@ fread_gz = function(filename, ...){
 ### load metadata and select cells/files ###
 
 meta <- fread(io$meta_data)
-meta  <- meta[context == "CG" & pass_accQC == TRUE]
+meta  <- meta[context == "CG" & pass_accQC == TRUE & pass_CHGQC == TRUE & pass_CHHQC == TRUE]
 print(head(meta))
 
 cells <- unique(meta[, sample])
