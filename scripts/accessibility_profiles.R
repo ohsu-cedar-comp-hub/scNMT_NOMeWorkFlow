@@ -55,7 +55,7 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 #io$qc_file <- "tables/sample_stats_qcPass.txt"
 #io$promBed <- "data/anno/promoters10000.bed"
 #io$bodyBed <- "data/body1000.bed"
-#opts$context <- "CG"
+#opts$context <- "GC"
 #opts$win <- 100
 #opts$step <- 20
 #opts$covCutOff <- 0
@@ -223,7 +223,7 @@ Rate <- as.data.frame(do.call(rbind,lapply(seq(1,nrow(acc)-1,by=2), function(i){
 Avg$rate <- Rate[,1]
 print(head(Avg))
 
-Avg$condition <- str_extract(Avg$cell, "[^_]+")
+Avg$condition <- sub("_([^_]*)$", '', Avg$cell)
 ###################
 
 Avg_list <- split(Avg, Avg$condition)

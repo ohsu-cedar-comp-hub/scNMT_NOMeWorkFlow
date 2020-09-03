@@ -42,7 +42,7 @@ library(purrr)
 library(tidyr)
 library(ggplot2)
 library(cowplot)
-library(argparse)
+#library(argparse)
 
 if(!(file.exists( outdir ))) {
     dir.create(outdir,FALSE,TRUE)  
@@ -92,9 +92,9 @@ dim(stats)
 
 metadata    <- fread(io$sample.metadata)
 metadata$id <- metadata$sample
-metadata$condition <- sub("^sc_.*[0-9]_", "", metadata$sample)
+metadata$condition <- sub("_([^_]*)$", '', metadata$sample)
 
-df <- data.table(merge(as.data.frame(stats), as.data.frame(metadata[!duplicated(metadata$sample), ]), by="sample"))
+df <- data.table(merge(as.data.frame(stats[!(stats$sample == ""), ]), as.data.frame(metadata[!(duplicated(metadata$sample) | metadata$sample == ""), ]), by="sample"))
 dim(df)
 head(df)
 

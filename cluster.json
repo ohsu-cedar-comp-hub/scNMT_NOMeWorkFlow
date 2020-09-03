@@ -21,7 +21,7 @@
     },
      "mapping_R1" :
     {
-	"t" : "20:00:00",
+	"t" : "30:00:00",
         "J" : "mapReads_single_controls_R1",
         "o" : "logs/mapping_R1/mapReads_single_controls_R1%j.out",
         "e" : "logs/mapping_R1/mapReads_single_controls_R1%j.err",
@@ -30,7 +30,7 @@
     },
     "mapping_R2" :
     {
-	"t" : "20:00:00",
+	"t" : "30:00:00",
         "J" : "mapReads_single_controls_R2",
         "o" : "logs/mapping_R2/mapReads_single_controls_R2%j.out",
         "e" : "logs/mapping_R2/mapReads_single_controls_R2%j.err",
