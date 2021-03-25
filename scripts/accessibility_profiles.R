@@ -223,7 +223,9 @@ Rate <- as.data.frame(do.call(rbind,lapply(seq(1,nrow(acc)-1,by=2), function(i){
 Avg$rate <- Rate[,1]
 print(head(Avg))
 
-Avg$condition <- sub("_([^_]*)$", '', Avg$cell)
+Avg$cell <- gsub("T_", "TD", Avg$cell)
+#Avg$condition <- sub("_([^_]*)$", '', Avg$cell)
+Avg$condition <- sub("_.*", "", Avg$cell)
 ###################
 
 Avg_list <- split(Avg, Avg$condition)
