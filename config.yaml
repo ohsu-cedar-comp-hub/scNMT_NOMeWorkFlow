@@ -1,7 +1,7 @@
 bismark_index:
   /home/groups/CEDAR/anno/indices/bismark/bowtie2/hg19/
 project_id:
-  20191024_BC10
+  20201130_MCF7
 trim_dir:
   samples/trim
 map_dir:
@@ -34,3 +34,5 @@ accMeanTop:
   45
 accMeanBot:
   20
+seq_type:
+  PE

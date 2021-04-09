@@ -189,5 +189,12 @@ rule create_reports:
         expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz", sample = SAMPLES)
      output:
         "tables/bismarkSE_mapping_report.txt"
+     params:	
+        name = config["project_id"],
+        seq_type = config["seq_type"]
      shell:
-        "bash scripts/reports.sh"
+        """
+        echo -e "ProjectID\tSampleID\tReadType" > data/new_metadata.txt
+        ls -1 bismarkSE/ | awk -F. '{{print $1}}' | awk -F_ '{{ print {params.name}"\t"$1"_"$2"_"$3"\t"{params.seq_type} }}' | sort | uniq >> data/new_metadata.txt
+        bash scripts/reports.sh
+        """
