@@ -194,7 +194,7 @@ rule create_reports:
         seq_type = config["seq_type"]
      shell:
         """
-        echo -e "ProjectID\tSampleID\tReadType" > data/new_metadata.txt
-        ls -1 bismarkSE/ | awk -F. '{{print $1}}' | awk -F_ '{{ print {params.name}"\t"$1"_"$2"_"$3"\t"{params.seq_type} }}' | sort | uniq >> data/new_metadata.txt
+        echo -e "ProjectID\tSampleID\tReadType" > data/metadata.txt
+        ls -1 bismarkSE/ | awk -F. '{{print $1}}' | awk -F_ '{{ print {params.name}"\t"$1"_"$2"_"$3"\t"{params.seq_type} }}' | sort | uniq >> data/metadata.txt
         bash scripts/reports.sh
         """
