@@ -77,6 +77,7 @@ rule all:
 	expand("bismarkSE/CX/{sample}_merged{CX_report}", sample = SAMPLES, CX_report = CX_report),
 	expand("bismarkSE/CX/coverage2cytosine_1based/{sample}_merged.NOMe.{c2c}", sample = SAMPLES, c2c = c2c),
 	expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_GpC.gz", sample = SAMPLES),
+        expand("plots/Mbias/{sample}_merged_Mbias_plot.pdf", sample = SAMPLES),
 	"tables/bismarkSE_mapping_report.txt",
 	"plots/counts_stats/coverageBar.pdf",
         "plots/counts_stats/GWmethylRate.pdf",
