@@ -94,6 +94,16 @@ rule methylation_extractor:
 	bismark_methylation_extractor -s --output bismarkSE/CX --CX --parallel 12 --gzip --bedGraph bismarkSE/dedup/{wildcards.sample}_merged.bam
 	"""
 
+rule Mbias_plot:
+      input:
+         "bismarkSE/CX/{sample}_merged.M-bias.txt"
+      output:
+         "plots/Mbias/{sample}_merged_Mbias_plot.pdf"
+      conda:
+         "../envs/NMT_NOMe_QC.yaml"
+      shell:
+         "Rscript scripts/Mbias_plots.R --infile={input} --sample={wildcards.sample}_merged --outdir=plots/Mbias/"
+
 rule coverage2cytosine:
     input:
         "bismarkSE/CX/{sample}_merged.bismark.cov.gz" 

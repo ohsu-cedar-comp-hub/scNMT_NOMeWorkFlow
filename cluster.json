@@ -64,6 +64,15 @@
         "c" : 12,
         "mem" : 128000
     },
+    "Mbias_plot" :
+    {
+        "t" : "2:00:00",
+        "J" : "Mbias_plot",
+        "o" : "logs/Mbias_plot/Mbias_plot%j.out",
+        "e" : "logs/Mbias_plot/Mbias_plot%j.err",
+        "c" : 1,
+        "mem" : 8000
+    },
     "coverage2cytosine" :
     {
 	"t" : "12:00:00",
