@@ -1,7 +1,7 @@
 bismark_index:
-  /home/groups/CEDAR/anno/indices/bismark/bowtie2/hg19/
+  /home/groups/CEDAR/anno/indices/bismark/bowtie2/hg38/
 project_id:
-  20201130_MCF7
+  PT29
 trim_dir:
   samples/trim
 map_dir:
@@ -11,7 +11,7 @@ acc_prom:
 met_prom:
   10000
 gtf_file:
-  /home/groups/CEDAR/anno/gtf/hg19_ens87.chr.gtf
+  /home/groups/CEDAR/anno/gtf/hg38_ens94.chr.gtf
 accBed:
   data/anno/promoters1000.bed
 metBed:
@@ -19,7 +19,7 @@ metBed:
 bedtools:
   /home/groups/CEDAR/tools/bedtools
 cpg:
-  /home/groups/CEDAR/woodfin/projects/NMT-seq/20190523_NM/anno/hg19/corr/hg19_CpGislands_UCSC.bed
+  /home/groups/CEDAR/anno/UCSC/hg38/cpgIslandExt.hg38.bed
 annoDir:
   data/anno
 min_cells_acc:
