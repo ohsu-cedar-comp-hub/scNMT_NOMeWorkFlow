@@ -53,7 +53,7 @@ if( !is.na(charmatch("--help",args)) || !is.na(charmatch("--help",args)) ){
 #io$out_dir <- "data"
 #io$anno <- "data/gene_metadata.tsv"
 #io$qc_file <- "tables/sample_stats_qcPass.txt"
-#io$promBed <- "data/anno/promoters10000.bed"
+#io$promBed <- "data/anno/promoters1000.bed"
 #io$bodyBed <- "data/body1000.bed"
 #opts$context <- "GC"
 #opts$win <- 100
@@ -143,8 +143,8 @@ head(files)
 #gr <- as(prom, "GRanges") %>% .[width(.) > opts$promUp]
                                         #print(gr)
 prom <- fread(io$promBed) %>% setnames(c("chr","start", "end", "strand", "ens_id", "anno")) %>%
-    .[strand == "+", tss := start] %>%
-    .[strand == "-", tss := end] %>% .[!chr %in% c("chrM", "chrY", "M", "Y")]
+    .[strand == "+", tss := (start+end)/2] %>%                                                    #promoter files were built as windows around promoter, so tss is in the middle 
+    .[strand == "-", tss := (start+end)/2] %>% .[!chr %in% c("chrM", "chrY", "M", "Y")]           #promoter files were built as windows around promoter, so tss is in the middle 
 prom <- as(prom, "GRanges")
 print(prom)
 
@@ -225,7 +225,7 @@ print(head(Avg))
 
 Avg$cell <- gsub("T_", "TD", Avg$cell)
 #Avg$condition <- sub("_([^_]*)$", '', Avg$cell)
-Avg$condition <- sub("_.*", "", Avg$cell)
+Avg$condition <- sub("_AH.*", "", Avg$cell)
 ###################
 
 Avg_list <- split(Avg, Avg$condition)
