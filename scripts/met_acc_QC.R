@@ -101,6 +101,17 @@ head(df)
 mapping_report <- fread(mapping_file,sep="\t", verbose=F, showProgress=F)
 head(mapping_report)
 
+sat_plot_df <- mapping_report
+sat_plot_df$Run <- "First"
+colnames(sat_plot_df) <- c("Sample", "TotalReads", "MappedReads", "PercentMapped", "Total_Cs", "CpG", "CHG", "CHH", "Dedup_Num", "Dedup_Percent", "Run")
+
+sat_plot_df$UniqueReads <- sat_plot_df$MappedReads - sat_plot_df$Dedup_Num
+sat_plot_df$plate <- substr(sat_plot_df$Sample,1,4)
+
+pdf(paste(Dir, "Saturation_plot_comparingRuns_byPlate.pdf", sep="/"), width=8, height=5)
+ggplot(data=sat_plot_df, mapping = aes(x=MappedReads, y=UniqueReads)) + geom_point(aes(color=Run), alpha = .5) + geom_smooth(method = "loess", formula = (y ~ log2(x))) + coord_fixed() + facet_wrap(~plate, nrow = 2, ncol = 2)
+dev.off()
+
 eh <- as.data.frame(mapping_report[,c(1,7,8)])
 colnames(eh) <- c("sample", "CHG", "CHH")
 eh$cell <- gsub("_R[0-9]", "", eh$sample)
