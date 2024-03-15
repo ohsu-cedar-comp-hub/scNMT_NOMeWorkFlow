@@ -1,53 +1,67 @@
-rule trimming:
+rule merge_fastqs:
     input:
         read1 = "samples/raw/{sample}_R1.fastq.gz",
         read2 = "samples/raw/{sample}_R2.fastq.gz"
     output:
-        "samples/trim/{sample}_R1.fastq.gz_trimming_report.txt",
-        "samples/trim/{sample}_R1_val_1_fastqc.html",
-        "samples/trim/{sample}_R1_val_1_fastqc.zip",
-        "samples/trim/{sample}_R1_val_1.fq.gz",
-        "samples/trim/{sample}_R2.fastq.gz_trimming_report.txt",
-        "samples/trim/{sample}_R2_val_2_fastqc.html",
-        "samples/trim/{sample}_R2_val_2_fastqc.zip",
-        "samples/trim/{sample}_R2_val_2.fq.gz"
+        temp("samples/merged/{sample}_merged_R1.fq.gz"),
+        temp("samples/merged/{sample}_merged_R2.fq.gz")
+    shell:
+        """
+        mkdir -p samples/merged
+        cat samples/raw/{wildcards.sample}*R1*.fastq.gz > samples/merged/{wildcards.sample}_merged_R1.fq.gz
+        cat samples/raw/{wildcards.sample}*R2*.fastq.gz > samples/merged/{wildcards.sample}_merged_R2.fq.gz
+        """
+
+rule trimming:
+    input:
+        read1 = "samples/merged/{sample}_merged_R1.fq.gz",
+        read2 = "samples/merged/{sample}_merged_R2.fq.gz"
+    output:
+        "samples/trim/{sample}_merged_R1.fq.gz_trimming_report.txt",
+        "samples/trim/{sample}_merged_R1_val_1_fastqc.html",
+        "samples/trim/{sample}_merged_R1_val_1_fastqc.zip",
+        temp("samples/trim/{sample}_merged_R1_val_1.fq.gz"),
+        "samples/trim/{sample}_merged_R2.fq.gz_trimming_report.txt",
+        "samples/trim/{sample}_merged_R2_val_2_fastqc.html",
+        "samples/trim/{sample}_merged_R2_val_2_fastqc.zip",
+        temp("samples/trim/{sample}_merged_R2_val_2.fq.gz")
     conda:
         "../envs/trimG.yaml"
     shell:
-        """trim_galore --paired --clip_R1 6 --clip_R2 6 --trim1 --gzip --fastqc --output_dir samples/trim {input.read1} {input.read2}"""
+        """trim_galore --paired --clip_R1 16 --clip_R2 10 --trim1 --gzip --fastqc --output_dir samples/trim {input.read1} {input.read2}"""
 
 rule mapping_R1:
     input:
-        fwd = "samples/trim/{sample}_R1_val_1.fq.gz",
+        fwd = "samples/trim/{sample}_merged_R1_val_1.fq.gz",
     output:
-        "bismarkSE/{sample}_R1.{sample}_R1_val_1_bismark_bt2.bam",
-        "bismarkSE/{sample}_R1.{sample}_R1_val_1_bismark_bt2_SE_report.txt",
+        "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.bam",
+        "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2_SE_report.txt",
     params:	
         bismark_index = config["bismark_index"],
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
+        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
         
 rule mapping_R2:
     input:
-        rev = "samples/trim/{sample}_R2_val_2.fq.gz",
+        rev = "samples/trim/{sample}_merged_R2_val_2.fq.gz",
     output:
-        "bismarkSE/{sample}_R2.{sample}_R2_val_2_bismark_bt2.bam",
-        "bismarkSE/{sample}_R2.{sample}_R2_val_2_bismark_bt2_SE_report.txt",
+        "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.bam",
+        "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2_SE_report.txt",
     params:	
         bismark_index = config["bismark_index"],
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
+        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
 
 rule deduplcate_bam_R1:
     input:
-        fwd = "bismarkSE/{sample}_R1.{sample}_R1_val_1_bismark_bt2.bam",
+        fwd = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.bam",
     output:
-        "bismarkSE/dedup/{sample}_R1.{sample}_R1_val_1_bismark_bt2.deduplicated.bam",
-	"bismarkSE/dedup/{sample}_R1.{sample}_R1_val_1_bismark_bt2.deduplication_report.txt"
+        "bismarkSE/dedup/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.deduplicated.bam",
+	"bismarkSE/dedup/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.deduplication_report.txt"
     conda:
         "../envs/methylome.yaml"
     shell:
@@ -55,10 +69,10 @@ rule deduplcate_bam_R1:
 
 rule deduplcate_bam_R2:
     input:
-        rev = "bismarkSE/{sample}_R2.{sample}_R2_val_2_bismark_bt2.bam",
+        rev = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.bam",
     output:
-        "bismarkSE/dedup/{sample}_R2.{sample}_R2_val_2_bismark_bt2.deduplicated.bam",
-	"bismarkSE/dedup/{sample}_R2.{sample}_R2_val_2_bismark_bt2.deduplication_report.txt"
+        "bismarkSE/dedup/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.deduplicated.bam",
+	"bismarkSE/dedup/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.deduplication_report.txt"
     conda:
         "../envs/methylome.yaml"
     shell:
@@ -66,8 +80,8 @@ rule deduplcate_bam_R2:
 
 rule methylation_extractor:
     input:
-        fwd = "bismarkSE/dedup/{sample}_R1.{sample}_R1_val_1_bismark_bt2.deduplicated.bam",
-        rev = "bismarkSE/dedup/{sample}_R2.{sample}_R2_val_2_bismark_bt2.deduplicated.bam",
+        fwd = "bismarkSE/dedup/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.deduplicated.bam",
+        rev = "bismarkSE/dedup/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.deduplicated.bam",
     output:
         "bismarkSE/dedup/{sample}_merged.bam",
         "bismarkSE/CX/CHG_CTOT_{sample}_merged.txt.gz",

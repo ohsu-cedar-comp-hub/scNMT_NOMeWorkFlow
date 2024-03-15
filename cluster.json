@@ -10,6 +10,15 @@
         "c" : 4,
         "mem" : 45000
     },
+     "merge_fastqs" :
+    {
+        "t" : "3:00:00",
+        "J" : "merge_fastqs",
+        "o" : "logs/merge_fastqs/merge_fastqs%j.out",
+        "e" : "logs/merge_fastqs/merge_fastqs%j.err",
+        "c" : 1,
+        "mem" : 16000
+    },
      "trimming" :
     {
 	"t" : "3:00:00",
@@ -26,7 +35,8 @@
         "o" : "logs/mapping_R1/mapReads_single_controls_R1%j.out",
         "e" : "logs/mapping_R1/mapReads_single_controls_R1%j.err",
         "c" : 8,
-        "mem" : 156000
+        "mem" : 156000,
+        "gres" : "disk:5000"
     },
     "mapping_R2" :
     {
@@ -35,7 +45,8 @@
         "o" : "logs/mapping_R2/mapReads_single_controls_R2%j.out",
         "e" : "logs/mapping_R2/mapReads_single_controls_R2%j.err",
         "c" : 8,
-        "mem" : 156000
+        "mem" : 156000,
+        "gres" : "disk:5000"
     },
     "deduplcate_bam_R1" :
     {
