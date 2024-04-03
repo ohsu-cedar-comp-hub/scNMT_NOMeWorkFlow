@@ -30,12 +30,34 @@ rule trimming:
     shell:
         """trim_galore --paired --clip_R1 16 --clip_R2 10 --trim1 --gzip --fastqc --output_dir samples/trim {input.read1} {input.read2}"""
 
-rule mapping_R1:
+rule split_fastqs:
     input:
-        fwd = "samples/trim/{sample}_merged_R1_val_1.fq.gz",
+        read1 = "samples/trim/{sample}_merged_R1_val_1.fq.gz",
+        read2 = "samples/trim/{sample}_merged_R2_val_2.fq.gz"
     output:
-        "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.bam",
-        "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2_SE_report.txt",
+        read1_1 = temp("samples/split/{sample}_merged_R1_val_1_1.fq.gz"),
+        read1_2 = temp("samples/split/{sample}_merged_R1_val_1_2.fq.gz"),
+        read1_3 = temp("samples/split/{sample}_merged_R1_val_1_3.fq.gz"),
+        read1_4 = temp("samples/split/{sample}_merged_R1_val_1_4.fq.gz"),
+        read2_1 = temp("samples/split/{sample}_merged_R2_val_2_1.fq.gz"),
+        read2_2 = temp("samples/split/{sample}_merged_R2_val_2_2.fq.gz"),
+        read2_3 = temp("samples/split/{sample}_merged_R2_val_2_3.fq.gz"),
+        read2_4 = temp("samples/split/{sample}_merged_R2_val_2_4.fq.gz")
+    conda:
+        "../envs/split_fastqs.yaml"
+    shell:
+        """
+        mkdir -p samples/split
+        fastqsplitter -i {input.read1} -o {output.read1_1} -o {output.read1_2} -o {output.read1_3} -o {output.read1_4}
+        fastqsplitter -i {input.read2} -o {output.read2_1} -o {output.read2_2} -o {output.read2_3} -o {output.read2_4}
+        """
+        
+rule mapping_R1_1:
+    input:
+        fwd = "samples/split/{sample}_merged_R1_val_1_1.fq.gz",
+    output:
+        temp("bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_1_bismark_bt2.bam"),
+        "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_1_bismark_bt2_SE_report.txt"
     params:	
         bismark_index = config["bismark_index"],
     conda:
@@ -43,12 +65,12 @@ rule mapping_R1:
     shell:
         """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
         
-rule mapping_R2:
+rule mapping_R2_1:
     input:
-        rev = "samples/trim/{sample}_merged_R2_val_2.fq.gz",
+        rev = "samples/split/{sample}_merged_R2_val_2_1.fq.gz",
     output:
-        "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.bam",
-        "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2_SE_report.txt",
+        temp("bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_1_bismark_bt2.bam"),
+        "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_1_bismark_bt2_SE_report.txt"
     params:	
         bismark_index = config["bismark_index"],
     conda:
@@ -56,6 +78,122 @@ rule mapping_R2:
     shell:
         """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
 
+rule mapping_R1_2:
+    input:
+        fwd = "samples/split/{sample}_merged_R1_val_1_2.fq.gz",
+    output:
+        temp("bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_2_bismark_bt2.bam"),
+        "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_2_bismark_bt2_SE_report.txt"
+    params:	
+        bismark_index = config["bismark_index"],
+    conda:
+        "../envs/methylome.yaml"
+    shell:
+        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
+        
+rule mapping_R2_2:
+    input:
+        rev = "samples/split/{sample}_merged_R2_val_2_2.fq.gz",
+    output:
+        temp("bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_2_bismark_bt2.bam"),
+        "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_2_bismark_bt2_SE_report.txt"
+    params:	
+        bismark_index = config["bismark_index"],
+    conda:
+        "../envs/methylome.yaml"
+    shell:
+        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
+
+rule mapping_R1_3:
+    input:
+        fwd = "samples/split/{sample}_merged_R1_val_1_3.fq.gz",
+    output:
+        temp("bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_3_bismark_bt2.bam"),
+        "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_3_bismark_bt2_SE_report.txt"
+    params:	
+        bismark_index = config["bismark_index"],
+    conda:
+        "../envs/methylome.yaml"
+    shell:
+        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
+        
+rule mapping_R2_3:
+    input:
+        rev = "samples/split/{sample}_merged_R2_val_2_3.fq.gz",
+    output:
+        temp("bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_3_bismark_bt2.bam"),
+        "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_3_bismark_bt2_SE_report.txt"
+    params:	
+        bismark_index = config["bismark_index"],
+    conda:
+        "../envs/methylome.yaml"
+    shell:
+        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
+
+rule mapping_R1_4:
+    input:
+        fwd = "samples/split/{sample}_merged_R1_val_1_4.fq.gz",
+    output:
+        temp("bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_4_bismark_bt2.bam"),
+        "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_4_bismark_bt2_SE_report.txt"
+    params:	
+        bismark_index = config["bismark_index"],
+    conda:
+        "../envs/methylome.yaml"
+    shell:
+        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
+        
+rule mapping_R2_4:
+    input:
+        rev = "samples/split/{sample}_merged_R2_val_2_4.fq.gz",
+    output:
+        temp("bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_4_bismark_bt2.bam"),
+        "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_4_bismark_bt2_SE_report.txt"
+    params:	
+        bismark_index = config["bismark_index"],
+    conda:
+        "../envs/methylome.yaml"
+    shell:
+        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
+
+rule merge_bismark_bams:
+    input:
+        bam1_1 = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_1_bismark_bt2.bam",
+        bam1_2 = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_2_bismark_bt2.bam",
+        bam1_3 = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_3_bismark_bt2.bam",
+        bam1_4 = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_4_bismark_bt2.bam",
+        bam2_1 = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_1_bismark_bt2.bam",
+        bam2_2 = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_2_bismark_bt2.bam",
+        bam2_3 = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_3_bismark_bt2.bam",
+        bam2_4 = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_4_bismark_bt2.bam",
+    output:
+        fwd = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.bam",
+        rev = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.bam",
+    shell:
+        """
+        samtools merge {output.fwd} {input.bam1_1} {input.bam1_2} {input.bam1_3} {input.bam1_4}
+        samtools merge {output.rev} {input.bam2_1} {input.bam2_2} {input.bam2_3} {input.bam2_4}
+        """
+
+rule merge_bismark_reports:
+    input:
+        rep1_1 = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_1_bismark_bt2_SE_report.txt",
+        rep1_2 = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_2_bismark_bt2_SE_report.txt",
+        rep1_3 = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_3_bismark_bt2_SE_report.txt",
+        rep1_4 = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_4_bismark_bt2_SE_report.txt",
+        rep2_1 = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_1_bismark_bt2_SE_report.txt",
+        rep2_2 = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_2_bismark_bt2_SE_report.txt",
+        rep2_3 = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_3_bismark_bt2_SE_report.txt",
+        rep2_4 = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_4_bismark_bt2_SE_report.txt"
+    output:
+        rep1 = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2_SE_report_final.txt",
+        rep2 = "bismarkSE/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2_SE_report_final.txt"
+    shell:
+        """
+        bash scripts/merge_reports.sh -a {input.rep1_1} -b {input.rep1_2} -c {input.rep1_3} -d {input.rep1_4} -o {output.rep1} -p {wildcards.sample}_R1
+        bash scripts/merge_reports.sh -a {input.rep2_1} -b {input.rep2_2} -c {input.rep2_3} -d {input.rep2_4} -o {output.rep2} -p {wildcards.sample}_R2
+        """
+        
 rule deduplcate_bam_R1:
     input:
         fwd = "bismarkSE/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.bam",
@@ -77,6 +215,19 @@ rule deduplcate_bam_R2:
         "../envs/methylome.yaml"
     shell:
         """deduplicate_bismark --single --output_dir bismarkSE/dedup --bam {input.rev}"""
+
+rule deduplcate_reports:
+    input:
+       fwd = "bismarkSE/dedup/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.deduplication_report.txt",
+       rev = "bismarkSE/dedup/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.deduplication_report.txt"
+    output:
+       fwd = "bismarkSE/dedup/{sample}_R1_deduplication_report_final.txt",
+       rev = "bismarkSE/dedup/{sample}_R2_deduplication_report_final.txt"
+    shell:
+       """
+       bash scripts/deduplication_reports.sh -a {input.fwd} -o {output.fwd} -p {wildcards.sample}_R1
+       bash scripts/deduplication_reports.sh -a {input.rev} -o {output.rev} -p {wildcards.sample}_R2
+       """
 
 rule methylation_extractor:
     input:
@@ -208,6 +359,21 @@ rule binarize_acc:
         Rscript scripts/binarize.R --infile={input} --outdir=bismarkSE/CX/coverage2cytosine_1based/filt/binarised --input_format=2
         """
 
+#rule create_reports:
+#     input:
+#        expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz", sample = SAMPLES)
+#     output:
+#        "tables/bismarkSE_mapping_report.txt"
+#     params:	
+#        name = config["project_id"],
+#        seq_type = config["seq_type"]
+#     shell:
+#        """
+#        echo -e "ProjectID\tSampleID\tReadType" > data/metadata.txt
+#        ls -1 bismarkSE/ | awk -F. '{{print $1}}' | awk -F_ '{{ print {params.name}"\t"$1"_"$2"_"$3"\t"{params.seq_type} }}' | sort | uniq >> data/metadata.txt
+#        bash scripts/reports.sh
+#        """
+
 rule create_reports:
      input:
         expand("bismarkSE/CX/coverage2cytosine_1based/filt/binarised/{sample}_CpG.gz", sample = SAMPLES)
@@ -218,7 +384,9 @@ rule create_reports:
         seq_type = config["seq_type"]
      shell:
         """
+        Rscript scripts/aggregate_reports.R
         echo -e "ProjectID\tSampleID\tReadType" > data/metadata.txt
-        ls -1 bismarkSE/ | awk -F. '{{print $1}}' | awk -F_ '{{ print {params.name}"\t"$1"_"$2"_"$3"\t"{params.seq_type} }}' | sort | uniq >> data/metadata.txt
-        bash scripts/reports.sh
+        ls -1 bismarkSE/ | awk -F. '{{print $1}}' | awk -F_ '{{ print {params.name}"\t"$1"_"$2"\t"{params.seq_type} }}' | sort | uniq >> data/metadata.txt
         """
+
+

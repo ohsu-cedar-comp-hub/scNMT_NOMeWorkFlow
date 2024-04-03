@@ -21,32 +21,119 @@
     },
      "trimming" :
     {
-	"t" : "3:00:00",
+	"t" : "6:00:00",
 	"J" : "trim_single_cases",
         "o" : "logs/trimming/mapReads_single_cases%j.out",
         "e" : "logs/trimming/mapReads_single_cases%j.err",
         "c" : 1,
         "mem" : 16000
     },
-     "mapping_R1" :
+     "split_fastqs" :
     {
-	"t" : "30:00:00",
+        "t" : "6:00:00",
+        "J" : "split_fastqs",
+        "o" : "logs/split_fastqs/split_fastqs%j.out",
+        "e" : "logs/split_fastqs/split_fastqs%j.err",
+        "c" : 1,
+        "mem" : 32000
+    },
+     "mapping_R1_1" :
+    {
+	"t" : "35:00:00",
         "J" : "mapReads_single_controls_R1",
         "o" : "logs/mapping_R1/mapReads_single_controls_R1%j.out",
         "e" : "logs/mapping_R1/mapReads_single_controls_R1%j.err",
         "c" : 8,
-        "mem" : 156000,
+        "mem" : 96000,
         "gres" : "disk:5000"
     },
-    "mapping_R2" :
+    "mapping_R2_1" :
     {
-	"t" : "30:00:00",
+	"t" : "35:00:00",
         "J" : "mapReads_single_controls_R2",
         "o" : "logs/mapping_R2/mapReads_single_controls_R2%j.out",
         "e" : "logs/mapping_R2/mapReads_single_controls_R2%j.err",
         "c" : 8,
-        "mem" : 156000,
+        "mem" : 96000,
         "gres" : "disk:5000"
+    },
+    "mapping_R1_2" :
+    {
+	"t" : "35:00:00",
+        "J" : "mapReads_single_controls_R1",
+        "o" : "logs/mapping_R1/mapReads_single_controls_R1%j.out",
+        "e" : "logs/mapping_R1/mapReads_single_controls_R1%j.err",
+        "c" : 8,
+        "mem" : 96000,
+        "gres" : "disk:5000"
+    },
+    "mapping_R2_2" :
+    {
+	"t" : "35:00:00",
+        "J" : "mapReads_single_controls_R2",
+        "o" : "logs/mapping_R2/mapReads_single_controls_R2%j.out",
+        "e" : "logs/mapping_R2/mapReads_single_controls_R2%j.err",
+        "c" : 8,
+        "mem" : 96000,
+        "gres" : "disk:5000"
+    },
+    "mapping_R1_3" :
+    {
+	"t" : "35:00:00",
+        "J" : "mapReads_single_controls_R1",
+        "o" : "logs/mapping_R1/mapReads_single_controls_R1%j.out",
+        "e" : "logs/mapping_R1/mapReads_single_controls_R1%j.err",
+        "c" : 8,
+        "mem" : 96000,
+        "gres" : "disk:5000"
+    },
+    "mapping_R2_3" :
+    {
+	"t" : "35:00:00",
+        "J" : "mapReads_single_controls_R2",
+        "o" : "logs/mapping_R2/mapReads_single_controls_R2%j.out",
+        "e" : "logs/mapping_R2/mapReads_single_controls_R2%j.err",
+        "c" : 8,
+        "mem" : 96000,
+        "gres" : "disk:5000"
+    },
+    "mapping_R1_4" :
+    {
+	"t" : "35:00:00",
+        "J" : "mapReads_single_controls_R1",
+        "o" : "logs/mapping_R1/mapReads_single_controls_R1%j.out",
+        "e" : "logs/mapping_R1/mapReads_single_controls_R1%j.err",
+        "c" : 8,
+        "mem" : 96000,
+        "gres" : "disk:5000"
+    },
+    "mapping_R2_4" :
+    {
+	"t" : "35:00:00",
+        "J" : "mapReads_single_controls_R2",
+        "o" : "logs/mapping_R2/mapReads_single_controls_R2%j.out",
+        "e" : "logs/mapping_R2/mapReads_single_controls_R2%j.err",
+        "c" : 8,
+        "mem" : 96000,
+        "gres" : "disk:5000"
+    },
+    "merge_bismark_bams" :
+    {
+        "t" : "6:00:00",
+        "J" : "merge_bismark_bams",
+        "o" : "logs/merge_bismark_bams/merge_bismark_bams%j.out",
+        "e" : "logs/merge_bismark_bams/merge_bismark_bams%j.err",
+        "c" : 1,
+        "mem" : 16000
+    },
+    "merge_bismark_reports" :
+    {
+        "t" : "3:00:00",
+        "J" : "merge_bismark_reports",
+        "o" : "logs/merge_bismark_reports/merge_bismark_reports%j.out",
+        "e" : "logs/merge_bismark_reports/merge_bismark_reports%j.err",
+        "c" : 1,
+        "mem" : 8000
     },
     "deduplcate_bam_R1" :
     {
@@ -65,6 +152,15 @@
         "e" : "logs/deduplcate_bam_R2/deduplicate_R2%j.err",
         "c" : 1,
         "mem" : 16000
+    },
+    "deduplcate_reports" :
+    {
+        "t" : "3:00:00",
+        "J" : "deduplcate_reports",
+        "o" : "logs/deduplcate_reports/deduplcate_reports%j.out",
+        "e" : "logs/deduplcate_reports/deduplcate_reports%j.err",
+        "c" : 1,
+        "mem" : 8000
     },
     "methylation_extractor" :
     {

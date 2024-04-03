@@ -225,7 +225,7 @@ print(head(Avg))
 
 Avg$cell <- gsub("T_", "TD", Avg$cell)
 #Avg$condition <- sub("_([^_]*)$", '', Avg$cell)
-Avg$condition <- sub("_AH.*", "", Avg$cell)
+Avg$condition <- sub("_.*", "", Avg$cell)
 ###################
 
 Avg_list <- split(Avg, Avg$condition)
