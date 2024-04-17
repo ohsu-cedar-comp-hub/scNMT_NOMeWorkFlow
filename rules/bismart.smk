@@ -63,7 +63,7 @@ rule mapping_R1_1:
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
+        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,0,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
         
 rule mapping_R2_1:
     input:
@@ -76,7 +76,7 @@ rule mapping_R2_1:
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
+        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,0,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
 
 rule mapping_R1_2:
     input:
@@ -89,7 +89,7 @@ rule mapping_R1_2:
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
+        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,0,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
         
 rule mapping_R2_2:
     input:
@@ -102,7 +102,7 @@ rule mapping_R2_2:
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
+        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,0,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
 
 rule mapping_R1_3:
     input:
@@ -115,7 +115,7 @@ rule mapping_R1_3:
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
+        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,0,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
         
 rule mapping_R2_3:
     input:
@@ -128,7 +128,7 @@ rule mapping_R2_3:
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
+        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,0,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
 
 rule mapping_R1_4:
     input:
@@ -141,7 +141,7 @@ rule mapping_R1_4:
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
+        """bismark --prefix {wildcards.sample}_R1 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,0,-0.2 --gzip -n 1 {params.bismark_index} {input.fwd}"""
         
 rule mapping_R2_4:
     input:
@@ -154,7 +154,7 @@ rule mapping_R2_4:
     conda:
         "../envs/methylome.yaml"
     shell:
-        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,-50,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
+        """bismark --prefix {wildcards.sample}_R2 --output_dir bismarkSE --temp_dir /mnt/scratch --non_directional --parallel=2 --score_min=L,0,-0.2 --gzip -n 1 {params.bismark_index} {input.rev}"""
 
 rule merge_bismark_bams:
     input:

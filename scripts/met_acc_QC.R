@@ -103,7 +103,7 @@ head(mapping_report)
 
 sat_plot_df <- mapping_report
 sat_plot_df$Run <- "First"
-colnames(sat_plot_df) <- c("Sample", "TotalReads", "MappedReads", "Total_Cs", "CpG_Num", "CHG_Num", "CHH_Num", "Dedup_Num", "Dedup_Percent", "PercentMapped", "CpG", "CHG", "CHH", "Run")
+colnames(sat_plot_df) <- c("Sample", "TotalReads", "MappedReads", "Total_Cs", "CpG_Methyl", "CHG_Methyl", "CHH_Methyl", "CpG_Unmethyl", "CHG_Unmethyl", "CHH_Unmethyl", "Dedup_Num", "Dedup_Percent", "PercentMapped", "CpG", "CHG", "CHH", "Run")
 
 sat_plot_df$UniqueReads <- sat_plot_df$MappedReads - sat_plot_df$Dedup_Num
 sat_plot_df$plate <- substr(sat_plot_df$Sample,1,4)

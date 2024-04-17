@@ -15,9 +15,12 @@ for FILE in $input1 $input2 $input3 $input4; do
         Reads=`grep "^Sequences analysed in total" ${FILE} | awk '{print $5}'`
         Mapped=`grep "^Number of alignments with" ${FILE} | awk '{print $13}'`
         Cs=`grep "^Total number of C's analysed:" ${FILE} | awk '{print $6}'`
-        CpG_num=`grep "^Total methylated C's in CpG context:" ${FILE} | awk '{print $7}'`
-        CHG_num=`grep "^Total methylated C's in CHG context:" ${FILE} | awk '{print $7}'`
-        CHH_num=`grep "^Total methylated C's in CHH context:" ${FILE} | awk '{print $7}'`
-        echo ${prefix} $Reads $Mapped $Cs $CpG_num $CHG_num $CHH_num $dedup_num $dedup_per | tr ' ' '\t' >> ${output}
+        CpG_methyl=`grep "^Total methylated C's in CpG context:" ${FILE} | awk '{print $7}'`
+        CHG_methyl=`grep "^Total methylated C's in CHG context:" ${FILE} | awk '{print $7}'`
+        CHH_methyl=`grep "^Total methylated C's in CHH context:" ${FILE} | awk '{print $7}'`
+        CpG_unmethyl=`grep "^Total unmethylated C's in CpG context:" ${FILE} | awk '{print $7}'`
+        CHG_unmethyl=`grep "^Total unmethylated C's in CHG context:" ${FILE} | awk '{print $7}'`
+        CHH_unmethyl=`grep "^Total unmethylated C's in CHH context:" ${FILE} | awk '{print $7}'`
+        echo ${prefix} $Reads $Mapped $Cs $CpG_methyl $CHG_methyl $CHH_methyl $CpG_unmethyl $CHG_unmethyl $CHH_unmethyl | tr ' ' '\t' >> ${output}
 	echo ${prefix}
 done
