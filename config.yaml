@@ -1,7 +1,7 @@
 bismark_index:
   /home/groups/CEDAR/anno/indices/bismark/bowtie2/hg38/
 project_id:
-  PT29
+  p0_params
 trim_dir:
   samples/trim
 map_dir:

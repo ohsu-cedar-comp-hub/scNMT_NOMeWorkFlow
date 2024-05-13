@@ -162,6 +162,15 @@
         "c" : 1,
         "mem" : 8000
     },
+    "peak_calling" :
+    {
+        "t" : "10:00:00",
+        "J" : "peak_calling",
+        "o" : "logs/peak_calling/peak_calling%j.out",
+        "e" : "logs/peak_calling/peak_calling%j.err",
+        "c" : 1,
+        "mem" : 32000
+    },
     "methylation_extractor" :
     {
 	"t" : "16:00:00",

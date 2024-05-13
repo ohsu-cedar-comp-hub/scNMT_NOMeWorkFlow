@@ -43,7 +43,7 @@ library(furrr)
 dir.create(io$out_dir, recursive = TRUE)
 
 
-opts$anno_regex <- "promoters1000.bed|MCF7_ER_peaks|H3K27ac_peaks|body1000.bed|Repressed|Enhancer|CTCF"
+opts$anno_regex <- "promoters1000.bed|MCF7_ER_peaks|H3K27ac_peaks|body1000.bed|Repressed|Enhancer|CTCF|called_peaks"
 opts$parallel <- FALSE
 opts$cores <- 2
 opts$gzip <- TRUE

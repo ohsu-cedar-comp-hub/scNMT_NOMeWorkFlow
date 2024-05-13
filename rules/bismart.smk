@@ -229,9 +229,28 @@ rule deduplcate_reports:
        bash scripts/deduplication_reports.sh -a {input.rev} -o {output.rev} -p {wildcards.sample}_R2
        """
 
+rule peak_calling:
+    input:
+        fwd = expand("bismarkSE/dedup/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.deduplicated.bam", sample = SAMPLES),
+        rev = expand("bismarkSE/dedup/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.deduplicated.bam", sample = SAMPLES)
+    output:
+        "data/anno/{sample_name}_called_peaks.bed"
+    conda:
+        "../envs/peak_calling.yaml"
+    shell:
+        """
+        mkdir -p tables/peaks
+        samtools merge tables/peaks/{wildcards.sample_name}_all_merged.bam {input.fwd} {input.rev}
+        macs2 callpeak -t tables/peaks/{wildcards.sample_name}_all_merged.bam --nomodel --broad --shift 100 --extsize 200 -f BAM -g hs -n {wildcards.sample_name} --outdir tables/peaks
+        rm tables/peaks/{wildcards.sample_name}_all_merged.bam
+        awk '{{ print $1"\t"$2"\t"$3"\t"$6"\t"$4 }}' tables/peaks/{wildcards.sample_name}_peaks.broadPeak > tables/peaks/temp.bed
+        awk '{{ print $0 "\t{wildcards.sample_name}_called_peaks" }}' tables/peaks/temp.bed > {output}
+        rm tables/peaks/temp.bed
+        """
+
 rule methylation_extractor:
     input:
-        fwd = "bismarkSE/dedup/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.deduplicated.bam",
+        fwd = "bismarkSE/dedup/{sample}_R1.{sample}_merged_R1_val_1_bismark_bt2.deduplicated.bam", 
         rev = "bismarkSE/dedup/{sample}_R2.{sample}_merged_R2_val_2_bismark_bt2.deduplicated.bam",
     output:
         "bismarkSE/dedup/{sample}_merged.bam",
