@@ -139,3 +139,22 @@ rule accmet_corr:
         "../envs/NMT_plotRatesAnno.yaml"	
      shell:
         "Rscript scripts/accmet/correlations_accmet.R --meta={input[0]} --genes={input[1]} --met=data/met --acc=data/acc --plotdir=plots/corr --anno=data/anno --min_cells_met={params.met} --min_cells_acc={params.acc}"
+
+rule accmet_UMAPs:
+     input:
+        "data/acc/body.tsv.gz",
+        "data/acc/promoter.tsv.gz",
+        "data/met/body.tsv.gz",
+        "data/met/promoter.tsv.gz"
+     output:
+        "plots/UMAPs/allUMAPsDone.txt"
+     params:
+        name = config["project_id"]
+     conda:
+        "../envs/metaccUMAP.yaml"
+     shell:
+        """
+        mkdir -p plots/UMAPs
+        Rscript scripts/metacc_UMAPs.R --outDir=plots/UMAPs --metDir=data/met --accDir=data/acc --anno=data/anno --dataname={params.name}
+        touch plots/UMAPs/allUMAPsDone.txt
+        """
