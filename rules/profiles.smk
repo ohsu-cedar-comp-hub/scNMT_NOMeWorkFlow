@@ -64,6 +64,7 @@ rule annotate_acc:
         "tables/sample_stats_qcPass.txt",
         "data/gene_metadata.tsv"
      output:
+        "data/acc/promoter.tsv.gz",
         "data/acc/body.tsv.gz",
         "data/acc/CTCF.tsv.gz",
         "data/acc/Enhancer.tsv.gz",
@@ -80,6 +81,7 @@ rule annotate_met:
         "tables/sample_stats_qcPass.txt",
 	"data/gene_metadata.tsv"
      output:
+        "data/met/promoter.tsv.gz",
         "data/met/body.tsv.gz",
         "data/met/CTCF.tsv.gz",
         "data/met/Enhancer.tsv.gz",

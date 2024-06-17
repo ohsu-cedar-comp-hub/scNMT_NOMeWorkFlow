@@ -122,6 +122,7 @@ rule all:
 	"plots/anno_rateVarboxplots.pdf",
 	"plots/corr/acc_met_correlations_loci.pdf",
         "plots/corr/acc_met_correlations_loci.tsv",
+        "plots/UMAPs/allUMAPsDone.txt"
 
 ## must include all rules
 include: "rules/bismart.smk"
