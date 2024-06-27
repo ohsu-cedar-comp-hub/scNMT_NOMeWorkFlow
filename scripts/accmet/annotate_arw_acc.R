@@ -96,6 +96,7 @@ if (opts$extend_anno_len) {
   setkey(anno, chr, start, end)
 }
 
+print(unique(anno$anno))
 
 ### perform overlap and quantification ###
 #setkey(anno, chr, start, end)
@@ -124,6 +125,8 @@ acc_dt <- future_map2(files, cells, ~{
   rbindlist()
 
 print(head(acc_dt))
+
+print(unique(acc_dt$anno))
 
 setkey(acc_dt, anno)
 acc_dt <- split(acc_dt, by = "anno")

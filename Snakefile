@@ -113,6 +113,7 @@ rule all:
 	"plots/profiles/methylation_at_promoters.RData",
         "plots/profiles/methylation_at_promoters.pdf",
 	"plots/profiles/methylation_average_promoters.pdf",
+#        expand("data/acc/{sample_name}_called_peaks.tsv.gz", sample_name = config["project_id"]),
 #	expand("data/{metORacc}/body.tsv.gz", metORacc = metORacc),
 #        expand("data/{metORacc}/CTCF.tsv.gz", metORacc = metORacc),
 #        expand("data/{metORacc}/Enhancer.tsv.gz", metORacc = metORacc),

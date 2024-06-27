@@ -62,7 +62,8 @@ rule methylation_profile:
 rule annotate_acc:
      input:
         "tables/sample_stats_qcPass.txt",
-        "data/gene_metadata.tsv"
+        "data/gene_metadata.tsv",
+        expand("data/anno/{sample_name}_called_peaks.bed", sample_name = config["project_id"])
      output:
         "data/acc/promoter.tsv.gz",
         "data/acc/body.tsv.gz",
@@ -79,7 +80,8 @@ rule annotate_acc:
 rule annotate_met:
      input:
         "tables/sample_stats_qcPass.txt",
-	"data/gene_metadata.tsv"
+	"data/gene_metadata.tsv",
+        expand("data/anno/{sample_name}_called_peaks.bed", sample_name = config["project_id"])
      output:
         "data/met/promoter.tsv.gz",
         "data/met/body.tsv.gz",
