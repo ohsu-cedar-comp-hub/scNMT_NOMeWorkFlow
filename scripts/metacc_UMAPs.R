@@ -149,7 +149,7 @@ acc_body_SO <- FindNeighbors(object = acc_body_SO, reduction = 'lsi', dims = 2:2
 #acc_body_SO <- FindClusters(object = acc_body_SO, verbose = FALSE, algorithm = 3)
 
 pdf(paste0(io$outDir, "/", data_name, "_accBodyUMAP.pdf"))
-DimPlot(object = acc_body_SO, group.by = "Sample")
+DimPlot(object = acc_body_SO, group.by = "Plate")
 dev.off()
 
 #Idents(acc_body_SO) <- "Sample"
@@ -195,7 +195,7 @@ met_body_SO <- FindNeighbors(object = met_body_SO, reduction = 'lsi', dims = 2:2
 #met_body_SO <- FindClusters(object = met_body_SO, verbose = FALSE, algorithm = 3)
 
 pdf(paste0(io$outDir, "/", data_name, "_metBodyUMAP.pdf"))
-DimPlot(object = met_body_SO, group.by = "Sample")
+DimPlot(object = met_body_SO, group.by = "Plate")
 dev.off()
 
 
@@ -224,7 +224,7 @@ acc_promoter_SO <- FindNeighbors(object = acc_promoter_SO, reduction = 'lsi', di
 #acc_promoter_SO <- FindClusters(object = acc_promoter_SO, verbose = FALSE, algorithm = 3)
 
 pdf(paste0(io$outDir, "/", data_name, "_accPromoterUMAP.pdf"))
-DimPlot(object = acc_promoter_SO, group.by = "Sample")
+DimPlot(object = acc_promoter_SO, group.by = "Plate")
 dev.off()
 
 #Idents(acc_promoter_SO) <- "Sample"
@@ -270,7 +270,7 @@ met_promoter_SO <- FindNeighbors(object = met_promoter_SO, reduction = 'lsi', di
 #met_promoter_SO <- FindClusters(object = met_promoter_SO, verbose = FALSE, algorithm = 3)
 
 pdf(paste0(io$outDir, "/", data_name, "_metPromoterUMAP.pdf"))
-DimPlot(object = met_promoter_SO, group.by = "Sample")
+DimPlot(object = met_promoter_SO, group.by = "Plate")
 dev.off()
 
 
@@ -303,7 +303,7 @@ acc_calledPeaks_SO <- FindNeighbors(object = acc_calledPeaks_SO, reduction = 'ls
 #acc_calledPeaks_SO <- FindClusters(object = acc_calledPeaks_SO, verbose = FALSE, algorithm = 3)
 
 pdf(paste0(io$outDir, "/", data_name, "_accPeaksUMAP.pdf"))
-DimPlot(object = acc_calledPeaks_SO, group.by = "Sample")
+DimPlot(object = acc_calledPeaks_SO, group.by = "Plate")
 dev.off()
 
 #Idents(acc_calledPeaks_SO) <- "Sample"
@@ -349,5 +349,5 @@ met_calledPeaks_SO <- FindNeighbors(object = met_calledPeaks_SO, reduction = 'ls
 #met_calledPeaks_SO <- FindClusters(object = met_calledPeaks_SO, verbose = FALSE, algorithm = 3)
 
 pdf(paste0(io$outDir, "/", data_name, "_metPeaksUMAP.pdf"))
-DimPlot(object = met_calledPeaks_SO, group.by = "Sample")
+DimPlot(object = met_calledPeaks_SO, group.by = "Plate")
 dev.off()
